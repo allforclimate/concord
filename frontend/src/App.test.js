@@ -1,8 +1,23 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+test('render', async () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+
+  await waitFor(() => {
+    expect(screen.getByText(/Create React Ethereum DApp/i)).toBeInTheDocument();
+    expect(screen.getByText(/active:/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Connect on MetaMask' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Connect on Portis' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Connect on WalletConnect' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Connect on WalletLink' })
+    ).toBeInTheDocument();
+  });
 });
