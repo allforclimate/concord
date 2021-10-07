@@ -13,7 +13,7 @@ contract KiezDAO {
     event Received(address, uint);
     event Spent(address, uint);
     
-    constructor() {}
+    constructor() payable {}
     
     function setTokenAddress(address _tokenAddress) public {
         require(set == false, "TOKEN_ADDRESS_ALREADY_SET");
@@ -24,8 +24,8 @@ contract KiezDAO {
     // Shoot 1 ETH and 200 CC to caller
     function addProposal() public payable {
         require (address(this).balance > 1 wei, "NO_MONEY");
-        payable(msg.sender).transfer(1 ether);
-        uint256 amount = 200000000000000000000; // 200 CC
+        payable(msg.sender).transfer(10000000000000000 wei);
+        uint256 amount = 200; // 200 CC
         CC(tokenAddress).withdraw(msg.sender, amount); // CC tokens are minted and transfered to msg.sender
         emit Spent(msg.sender, msg.value);
     }

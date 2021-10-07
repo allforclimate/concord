@@ -21,7 +21,7 @@ contract CC is ERC20 {
     function withdraw(address _beneficiary, uint256 _amount) public {
         require(msg.sender == kiezDAO, "CANNOT_MINT");
         _mint(_beneficiary, _amount*10**18);
-        emit Withdrawn (_beneficiary, 50);
+        emit Withdrawn (_beneficiary, _amount);
         }
     
     // msg.sender gets 1000 units for free // Subject to Sybil attacks
