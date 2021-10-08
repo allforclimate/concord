@@ -1,30 +1,31 @@
 const ethers = require('ethers');
+const logger = require('../modules/Logger.js');
 const { registeredUsers } = require('../modules/tables.js');
 
 require('dotenv').config();
 
 exports.run = async (client, message, args, level) => {
     const address = args[0];
-    console.log(`address passed: ${address}`);
+    const authorId = message.author.id;
+    const authorMention = message.author.toString();
+    const username = message.author.username;
 
     if (ethers.utils.isAddress(address)) {
-        const author = message.author.toString();
-        registeredUsers.set(author, address);
-        console.log(`Address for user ${author} in enmap is ${registeredUsers.get(author)}`);
-        message.reply(`Thanks for registering ${author}`)
-            .then(() => console.log('Replied successfully.'))
+        registeredUsers.set(authorId, address);
+        message.reply(`Thanks for registering ${authorMention}`)
+            .then(() => logger.log(`${username}'s wallet address has been registered successfully.`))
             .catch(console.error);
     } else {
-        message.reply(`Oops! This doesn't seem to be a valid Ethereum address. 
-            Are you sure you entered it correctly?`
-        ).then(() => console.log("Replied to wrong address input.")
-        ).catch(console.error);
+        message.reply(`Oops! This doesn't seem to be a valid Ethereum address. ` + 
+            `Are you sure you entered it correctly?`)
+        .then(() => logger.log(`${authorId} tried to register an incorrect address.`))
+        .catch(console.error);
     }
 };
 
 exports.conf = {
   enabled: true,
-  guildOnly: true,
+  guildOnly: false,
   aliases: [],
   permLevel: "User"
 };
