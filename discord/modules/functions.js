@@ -96,16 +96,23 @@ function getTodayString() {
   return yyyy + mm + dd;
 };
 
-// getCCBalance(String) returns the balance of CC tokens that a wallet has
-async function getCCBalance(address) {
-    address = ethers.utils.getAddress(address);
+// getInfuraProvider() returns a ethers.Provider object connected to Infura using the
+// API key stored in the environment variable
+function getInfuraProvider() {
     const apiKey = {
         projectId: process.env.INFURA_PROJECT_ID,
         projectSecret: process.env.INFURA_PROJECT_SECRET
     };
+    const provider = new ethers.providers.InfuraProvider(network=process.env.NETWORK, apiKey);
+    return provider;
+}
+
+// getCCBalance(String) returns the balance of CC tokens that a wallet has
+async function getCCBalance(address) {
+    address = ethers.utils.getAddress(address);
+    const provider = getInfuraProvider();
     const abiFile = fs.readFileSync('../contracts/abi/CC.json');
     const abiCC = JSON.parse(abiFile);
-    const provider = new ethers.providers.InfuraProvider(network=process.env.NETWORK, apiKey);
     const contract = new ethers.Contract(process.env.CC_TOKEN_ADDRESS, abiCC, provider);
     let balance = await contract.balanceOf(address);
     balance = ethers.utils.formatEther(balance);
@@ -152,5 +159,6 @@ module.exports = {
     getTodayString, 
     getCCBalance,
     isRegistered,
-    canVote
+    canVote,
+    getInfuraProvider
 };
