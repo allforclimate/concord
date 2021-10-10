@@ -2,6 +2,7 @@ import { InjectedConnector } from '@web3-react/injected-connector';
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
 import { WalletLinkConnector } from '@web3-react/walletlink-connector';
 import { PortisConnector } from './portis-connector';
+import { MagicConnector } from '@web3-react/magic-connector';
 
 const supportChainIdList = [1, 3, 4, 5, 42, 137, 80001];
 
@@ -14,7 +15,6 @@ const getRpcEndpoint = (chainId) => {
     42: 'kovan',
     137: 'polygon-mainnet',
     80001: 'polygon-mumbai',
-    1337: 'localhost'
   };
 
   return `https://${
@@ -48,6 +48,13 @@ export const injected = new InjectedConnector({
 export const portis = new PortisConnector({
   dAppId: '68b06260-223e-4d08-bd13-d6b654b8e5bd',
   networks: supportChainIdList,
+});
+
+// https://github.com/NoahZinsmeister/web3-react/blob/v6/docs/connectors/magic.md
+export const magic = new MagicConnector({
+  apiKey: "pk_live_1C92C25B986D7BFF",
+  chainId: 4,
+  email: "julien@strat.cc",
 });
 
 export const walletconnect = new WalletConnectConnector({

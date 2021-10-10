@@ -44,6 +44,10 @@ button {
   background-color: #79B1E2;
 }
 
+.button-magic {
+  background-color: #e782f5;
+}
+
 button:hover {
   opacity: 0.8;
 }
