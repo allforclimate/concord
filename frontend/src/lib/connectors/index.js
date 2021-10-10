@@ -76,6 +76,7 @@ export const connectorList = {
   Portis: portis,
   WalletConnect: walletconnect,
   WalletLink: walletlink,
+  MagicLink: magic
 };
 
 export default connectorList;
