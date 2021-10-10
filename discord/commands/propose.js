@@ -1,7 +1,9 @@
 const { proposals } = require('../modules/tables.js');
-const { getTodayString, canVote } = require('../modules/functions.js');
+const { getTodayString, canVote, submitProposal} = require('../modules/functions.js');
 const logger = require('../modules/Logger.js');
+const ethers = require('ethers');
 require('dotenv').config();
+
 
 // REMOVE AFTER TESTING PROPOSAL STORAGE
 proposals.clear();
@@ -49,17 +51,17 @@ exports.run = async (client, message, args, level) => {
                 }
 
                 try {
-            no_voters = await collected.get('👎').users.fetch();
-            no_vote_count = no_voters.size;
-            for (const voter of no_voters.entries()) {
-                noVoters[voter[0]] = voter[1];
-            };
-            } catch(e) {
-            if (e instanceof TypeError) {
-                no_vote_count = 0;
-                noVoters = {};
-            }
-            }
+                    no_voters = await collected.get('👎').users.fetch();
+                    no_vote_count = no_voters.size;
+                    for (const voter of no_voters.entries()) {
+                        noVoters[voter[0]] = voter[1];
+                    };
+                } catch(e) {
+                    if (e instanceof TypeError) {
+                        no_vote_count = 0;
+                        noVoters = {};
+                     }
+                }
 
             // proposals storage will have the date as the main key
             key = getTodayString();
@@ -94,6 +96,14 @@ exports.run = async (client, message, args, level) => {
             }
             proposals.set(key, today_proposals);
             console.log(proposals);
+
+            // Create proposal ID by hashing key and counter
+            const proposalId = ethers.utils.keccak256([key, counter]);
+            logger.log(`Proposal will be submitted with ID: ${proposalId}`);
+            const outcome = yes_vote_count > no_vote_count;
+
+            // Submit proposal to Reality
+            submitProposal(proposalId, outcome);
         });
         } catch (error) {
             console.log(error);

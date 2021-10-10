@@ -136,6 +136,20 @@ async function canVote(userId) {
     }
 };
 
+// submitProposal(string, bool) ensures that votes from Discord are placed on-chain by submitting
+// the proposal to the Reality module.
+
+function submitProposal(proposalId, outcome) {
+
+    // Load provider and bot wallet
+    const provider = getInfuraProvider();
+    let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC);
+    wallet = wallet.connect(provider);
+    const realityContract = new ethers.Contract()
+
+    return false;
+}
+
 // These 2 process methods will catch exceptions and give *more details* about the error and stack trace.
 process.on("uncaughtException", (err) => {
   const errorMsg = err.stack.replace(new RegExp(`${__dirname}/`, "g"), "./");
@@ -160,5 +174,6 @@ module.exports = {
     getCCBalance,
     isRegistered,
     canVote,
-    getInfuraProvider
+    getInfuraProvider,
+    submitProposal
 };
