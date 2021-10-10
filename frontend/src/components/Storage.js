@@ -10,10 +10,9 @@ const Storage = () => {
         const metadata = await client.store({
             name: 'mybill',
             description: 'I paid $200 USD for this.',
-            image: new File([/* data */], './public/mybill.jpg', { type: 'image/jpg' })
+            image: new File([/*data*/], './public/mybill.jpg', { type: 'image/jpg' })
           })
           console.log(metadata.url)
-        
     }
 
     return (
