@@ -37,7 +37,11 @@ button {
 }
 
 .button-disconnect {
-  background-color: #ffc9c9;
+  background-color: #79B1E2;
+}
+
+.button-standard {
+  background-color: #79B1E2;
 }
 
 button:hover {

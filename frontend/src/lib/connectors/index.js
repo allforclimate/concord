@@ -14,6 +14,7 @@ const getRpcEndpoint = (chainId) => {
     42: 'kovan',
     137: 'polygon-mainnet',
     80001: 'polygon-mumbai',
+    1337: 'localhost'
   };
 
   return `https://${
