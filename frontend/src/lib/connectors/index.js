@@ -3,6 +3,7 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
 import { WalletLinkConnector } from '@web3-react/walletlink-connector';
 import { PortisConnector } from './portis-connector';
 import { MagicConnector } from '@web3-react/magic-connector';
+// import { Magic } from 'magic-sdk';
 
 const supportChainIdList = [1, 3, 4, 5, 42, 137, 80001];
 
