@@ -2,11 +2,9 @@ import { useEffect, useState } from 'react';
 import { useWeb3React } from '@web3-react/core';
 import { useEagerConnect, useInactiveListener } from '../hooks';
 import connectorList, { resetWalletConnectConnector } from '../lib/connectors';
-// import { MagicConnector } from '@web3-react/magic-connector';
-
-// const magic = new MagicConnector({ apiKey: 'pk_live_1C92C25B986D7BFF', chainId: 4, email: 'julien@strat.cc' });
 
 const ConnectWallet = () => {
+
   const [isConnecing, setIsConnecing] = useState(false);
   const { activate, deactivate, active, error } = useWeb3React();
 

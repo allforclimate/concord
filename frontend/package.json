@@ -14,6 +14,8 @@
     "@web3-react/magic-connector": "^6.1.9",
     "@web3-react/walletconnect-connector": "^6.2.4",
     "@web3-react/walletlink-connector": "^6.2.3",
+    "ethers": "^5.4.7",
+    "magic-sdk": "^2.7.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-scripts": "4.0.3",
