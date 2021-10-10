@@ -3,6 +3,7 @@ import { Web3Provider } from '@ethersproject/providers';
 import ConnectWallet from './components/ConnectWallet';
 import WalletInfo from './components/WalletInfo';
 import Hello from './components/Hello';
+import Storage from './components/Storage';
 
 import './App.css';
 
@@ -19,6 +20,7 @@ function App() {
         <WalletInfo />
         <ConnectWallet />
         <Hello />
+        <Storage />
       </div>
     </Web3ReactProvider>
   );
