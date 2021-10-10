@@ -5,8 +5,8 @@ import CC from '../contracts/CC.json';
 
 const Hello = () => {
 
-    const inCC = CC;
-    console.log(inCC);
+    // const inCC = CC;
+    // console.log(inCC);
 
     const { account } = useWeb3React();
 
@@ -22,6 +22,7 @@ const Hello = () => {
         
         const cc = new Contract(addr, abi, signer);
         const call = await cc.register();
+        console.log("tx hash: ", call.hash);
     };
 
     return (
