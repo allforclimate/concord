@@ -32,7 +32,7 @@ exports.conf = {
 
 exports.help = {
   name: "register",
-  category: "Miscellaneous",
+  category: "DAO",
   description: "Tie a wallet address to your Discord account.",
   usage: "register"
 };

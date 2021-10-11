@@ -26,7 +26,7 @@ exports.conf = {
 
 exports.help = {
   name: "deregister",
-  category: "Miscellaneous",
+  category: "DAO",
   description: "Remove wallet address from your Discord account.",
   usage: "deregister"
 };

@@ -33,7 +33,7 @@ exports.conf = {
 
 exports.help = {
   name: "balance",
-  category: "Miscellaneous",
-  description: "Get the balance of KD tokens in your registeredUsers wallet.",
+  category: "DAO",
+  description: "Get the balance of CC tokens in your wallet.",
   usage: "balance"
 };

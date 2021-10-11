@@ -12,7 +12,7 @@ exports.run = async (client, message, args, level) => {
     if (!allowedToVote) {
         authorMention = message.author.toString();
         message.reply(
-            `Sorry ${authorMention}, you can't create a DAO proposal unless you have enough ` +
+            `Sorry ${authorMention}, you can't create a DAO proposal unless you are registered and  have enough ` +
             `tokens. Visit our website to buy some tokens.`)
         .then(() => logger.log(`User ${message.author.id} tried to create a proposal, but didn't have enough tokens.`))
         .catch((e) => logger.error(e));
@@ -64,7 +64,9 @@ exports.run = async (client, message, args, level) => {
                 }
 
             // proposals storage will have the date as the main key
-            key = getTodayString();
+            const key = getTodayString();
+
+            let counter = 0;
         
             // Create proposal record and add to proposals Enmap
             if (proposals.has(key)) {
@@ -85,7 +87,7 @@ exports.run = async (client, message, args, level) => {
                 today_proposals = Object.assign(today_proposals, proposal_record);
             } else {
                 today_proposals = {
-                    0: {
+                    [counter]: {
                     'proposal': proposal_text,
                     'yesCount': yes_vote_count,
                     'noCount': no_vote_count,
@@ -120,7 +122,7 @@ exports.conf = {
 
 exports.help = {
   name: "propose",
-  category: "Miscellaneous",
+  category: "DAO",
   description: "Create a proposal for the community to vote on.",
   usage: "propose"
 };
