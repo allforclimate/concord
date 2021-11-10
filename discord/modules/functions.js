@@ -1,12 +1,15 @@
 const logger = require("./Logger.js");
 const config = require("../config.js");
 const { settings } = require("./settings.js");
+<<<<<<< Updated upstream
 const fs = require('fs');
 const { ethers } = require("ethers");
 const { registeredUsers } = require("./tables.js");
 
 // Let's start by getting some useful functions that we'll use throughout
 // the bot, like logs and elevation features.
+=======
+>>>>>>> Stashed changes
 
 /*
   PERMISSION LEVEL FUNCTION
