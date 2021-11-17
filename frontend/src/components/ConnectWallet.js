@@ -2,6 +2,17 @@ import { useEffect, useState } from 'react';
 import { useWeb3React } from '@web3-react/core';
 import { useEagerConnect, useInactiveListener } from '../hooks';
 import connectorList, { resetWalletConnectConnector } from '../lib/connectors';
+import ReactModal from 'react-modal';
+
+<ReactModal
+
+isOpen={
+  false
+/* Boolean describing if the modal should be shown or not. */}
+
+>
+  <p>Modal Content</p>
+</ReactModal>
 
 const ConnectWallet = () => {
 

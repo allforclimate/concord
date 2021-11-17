@@ -3,9 +3,10 @@ import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
 import { WalletLinkConnector } from '@web3-react/walletlink-connector';
 import { PortisConnector } from './portis-connector';
 import { MagicConnector } from '@web3-react/magic-connector';
-// import { Magic } from 'magic-sdk';
 
 const supportChainIdList = [1, 3, 4, 5, 42, 137, 80001];
+
+const email = "julien@strat.cc";
 
 const getRpcEndpoint = (chainId) => {
   const endpoints = {
@@ -55,7 +56,7 @@ export const portis = new PortisConnector({
 export const magic = new MagicConnector({
   apiKey: "pk_live_1C92C25B986D7BFF",
   chainId: 4,
-  email: "julien@strat.cc",
+  email: email,
 });
 
 export const walletconnect = new WalletConnectConnector({
