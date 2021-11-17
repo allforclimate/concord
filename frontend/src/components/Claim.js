@@ -3,7 +3,7 @@ import { Contract, ethers } from 'ethers';
 import ccAddress from '../contracts/contractAddress.json';
 import CC from '../contracts/CC.json';
 
-const Hello = () => {
+const Claim = () => {
 
     // const inCC = CC;
     // console.log(inCC);
@@ -35,4 +35,4 @@ const Hello = () => {
         );
     };
 
-export default Hello;
+export default Claim;
