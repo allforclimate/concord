@@ -1,12 +1,23 @@
+import { useState } from 'react';
 import { InjectedConnector } from '@web3-react/injected-connector';
 import { WalletConnectConnector } from '@web3-react/walletconnect-connector';
 import { WalletLinkConnector } from '@web3-react/walletlink-connector';
 import { PortisConnector } from './portis-connector';
 import { MagicConnector } from '@web3-react/magic-connector';
 
-const supportChainIdList = [1, 3, 4, 5, 42, 137, 80001];
+let UserEmailAddress = 'two@trying.com';
 
-const email = "julien@strat.cc";
+export const GetEmail = () => {
+
+  console.log("hello");
+  UserEmailAddress = useState();
+  console.log("UserEmailAddress:", UserEmailAddress)
+
+}
+
+console.log("UserEmailAddress3:", UserEmailAddress)
+
+const supportChainIdList = [1, 3, 4, 5, 42, 137, 80001];
 
 const getRpcEndpoint = (chainId) => {
   const endpoints = {
@@ -52,11 +63,13 @@ export const portis = new PortisConnector({
   networks: supportChainIdList,
 });
 
+console.log("hello2");
+
 // https://github.com/NoahZinsmeister/web3-react/blob/v6/docs/connectors/magic.md
 export const magic = new MagicConnector({
   apiKey: "pk_live_1C92C25B986D7BFF",
   chainId: 4,
-  email: email,
+  email: UserEmailAddress,
 });
 
 export const walletconnect = new WalletConnectConnector({
