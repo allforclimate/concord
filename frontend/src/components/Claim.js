@@ -5,9 +5,6 @@ import CC from '../contracts/CC.json';
 
 const Claim = () => {
 
-    // const inCC = CC;
-    // console.log(inCC);
-
     const { account } = useWeb3React();
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -27,7 +24,7 @@ const Claim = () => {
 
     return (
         <div className="wallet-info">
-            <p>Click on this button to register as a member of the DAO:</p>
+            <p>Click here to register: </p>
             <button className="button-standard" onClick={register}>
             Register
         </button>

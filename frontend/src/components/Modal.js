@@ -13,7 +13,7 @@ isShowing
             <div className="modal-wrapper">
               <div className="modal">
                 <div className="modal-header">
-                  <h4 className="modal-title">hello</h4>
+                  <h4 className="modal-title">Your email please:</h4>
                 </div>
                 <div className="modal-body">{props.children}</div>
               </div>
