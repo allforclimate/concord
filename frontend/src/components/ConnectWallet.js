@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useWeb3React } from '@web3-react/core';
 import { useEagerConnect, useInactiveListener } from '../hooks';
-import connectorList, { resetWalletConnectConnector } from '../lib/connectors';
+import connectorList, { resetWalletConnectConnector, setUserEmail } from '../lib/connectors';
 import Modal from './Modal';
 import useModal from './UseModal';
 
@@ -29,6 +29,7 @@ const ConnectWallet = () => {
 
   const handleLogin = () => {
     console.log("email3: ", email);
+    setUserEmail(email);
     toggleModal();
     setIsConnecting(true);
     activate(connectorList['MagicLink']);
