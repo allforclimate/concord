@@ -5,7 +5,7 @@ const WalletInfo = () => {
 
   return (
     <div className="wallet-info">
-      <h1>Kiez DAO interface</h1>
+      <h1>Concord</h1>
       <p>Active: {active.toString()}</p>
       {active && (
         <div>

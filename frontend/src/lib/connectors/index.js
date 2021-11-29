@@ -4,7 +4,7 @@ import { WalletLinkConnector } from '@web3-react/walletlink-connector';
 import { PortisConnector } from './portis-connector';
 import { MagicConnector } from '@web3-react/magic-connector';
 
-const supportChainIdList = [1, 3, 4, 5, 42, 137, 80001];
+const supportChainIdList = [1, 3, 4, 5, 42, 137, 80001, 31337];
 
 let email = "julien@strat.cc";
 let magic;
