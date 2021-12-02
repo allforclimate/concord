@@ -1,24 +1,36 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("Interactions", function () {
+let Concord;
+let concord;
+let discordBot;
+let bob;
+let alice;
 
-  it("Should receive 1 ETH", async function () {
-    
-    const KiezDAO = await ethers.getContractFactory("KiezDAO");
-    const kiezdao = await KiezDAO.deploy();
-    await kiezdao.deployed();
-    // ...
-    
+beforeEach(async function () {
+  [discordBot, bob, alice] = await ethers.getSigners();
+});
+
+describe("Deployment", function () {
+
+  it("Should deploy Concord.sol", async function () {
+    Concord = await ethers.getContractFactory("Concord");
+    concord = await Concord.deploy(discordBot.address, bob.address, {value: ethers.utils.parseEther("1")});
+    expect(await concord.owner()).to.equal(discordBot.address);
   });
 
-  it("Should transfer 1 ETH", async function () {
-    
-    const KiezDAO = await ethers.getContractFactory("KiezDAO");
-    const kiezdao = await KiezDAO.deploy();
-    await kiezdao.deployed();
-    // ...
-    
+});
+
+describe("Interactions", function () {
+
+  it("Should execute a proposal", async function () {
+    const call = await concord.executeProposal(bob.address, ethers.utils.parseEther("0.1"), "Pay my lawyer");
+    expect(await concord.checkBalance()).to.equal(ethers.utils.parseEther("0.9"));
+  });
+
+  it("Should register a new member", async function () {
+    const call = await concord.connect(discordBot).register(alice.address);
+    expect(await concord.balanceOf(concord.address)).to.equal(ethers.utils.parseEther("400"));
   });
 
 });
