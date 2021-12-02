@@ -1,5 +1,6 @@
 const hre = require("hardhat");
 const fs = require('fs');
+// const { ethers } = require("hardhat");
 
 const contractsDir = __dirname + '/../frontend/src/contracts';
 
@@ -15,29 +16,28 @@ async function main() {
 
   console.log('network id: ', network.config.chainId);
 
-  const KiezDAO = await hre.ethers.getContractFactory("KiezDAO");
-  const kiezdao = await KiezDAO.deploy();
-  await kiezdao.deployed();
-  console.log("KiezDAO deployed to:", kiezdao.address);
+  let discordBot;
+  let bob;
+  
+  [discordBot, bob] = await ethers.getSigners();
 
-  // Deploy CC.sol
-  const CC = await ethers.getContractFactory('CC');
-  const cc = await CC.deploy(kiezdao.address);
+  const Concord = await ethers.getContractFactory('Concord');
+  const concord = await Concord.deploy(discordBot.address,bob.address);
 
-  saveFrontendFiles(cc);
+  saveFrontendFiles(concord);
 
-  console.log('CC deployed to ', cc.address);
+  console.log('Concord deployed to ', concord.address);
 }
 
-function saveFrontendFiles(cc) {
-  const CCArtifact = artifacts.readArtifactSync('CC');
+function saveFrontendFiles(concord) {
+  const ConcordArtifact = artifacts.readArtifactSync('Concord');
 
   if (!fs.existsSync(contractsDir)) {
     fs.mkdirSync(contractsDir);
   }
 
-  fs.writeFileSync(contractsDir + '/CC.json', JSON.stringify(CCArtifact, null, 2));
-  fs.writeFileSync(contractsDir + '/contractAddress.json', JSON.stringify({ CC: cc.address }, undefined, 2));
+  fs.writeFileSync(contractsDir + '/Concord.json', JSON.stringify(ConcordArtifact, null, 2));
+  fs.writeFileSync(contractsDir + '/contractAddress.json', JSON.stringify({ Concord: concord.address }, undefined, 2));
 }
 
 main()
