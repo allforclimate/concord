@@ -25,6 +25,10 @@
   overflow-x: auto;
 }
 
+.email-input {
+  margin: 1rem;
+}
+
 button {
   padding: 1rem;
   border-radius: 12px;
@@ -42,6 +46,7 @@ button {
 
 .button-standard {
   background-color: #79B1E2;
+  margin: 1rem;
 }
 
 .button-magic {

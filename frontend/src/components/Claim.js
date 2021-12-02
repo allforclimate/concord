@@ -3,10 +3,7 @@ import { Contract, ethers } from 'ethers';
 import ccAddress from '../contracts/contractAddress.json';
 import CC from '../contracts/CC.json';
 
-const Hello = () => {
-
-    // const inCC = CC;
-    // console.log(inCC);
+const Claim = () => {
 
     const { account } = useWeb3React();
 
@@ -27,7 +24,7 @@ const Hello = () => {
 
     return (
         <div className="wallet-info">
-            <p>Click on this button to register as a member of the DAO:</p>
+            <p>Click here to register: </p>
             <button className="button-standard" onClick={register}>
             Register
         </button>
@@ -35,4 +32,4 @@ const Hello = () => {
         );
     };
 
-export default Hello;
+export default Claim;
