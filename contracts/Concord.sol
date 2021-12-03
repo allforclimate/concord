@@ -10,11 +10,11 @@ contract Concord is ERC20, Ownable {
     event Claimed(address indexed beneficiary, uint indexed amount, string indexed task);
 
     struct User {
-		address addr;
-		uint bal;
+    	address addr;
+	uint bal;
         bool member;
     }
-	User[] public users;
+    User[] public users;
     
     constructor(address bot, address _member) ERC20("CC Token", "CC") payable {
         register(_member);
@@ -23,12 +23,12 @@ contract Concord is ERC20, Ownable {
     
     function register(address _member) public onlyOwner {
         users.push(
-			User({
-				addr: _member,
-		        bal: 200 * 10**18,
-                member: true
-			})
-		);
+	    User({
+                addr: _member,
+		bal: 200 * 10**18,
+		member: true
+	    })
+	);
         _mint(address(this), 200 * 10**18);
     }
     
@@ -65,7 +65,7 @@ contract Concord is ERC20, Ownable {
                 member: false
             })
         );
-		users[_id].bal += _amount;
+	users[_id].bal += _amount;
         _transfer(address(this),_user,_amount);
     }
 
