@@ -33,14 +33,28 @@ yarn start
 - I have access to the vote channel
 - I get myself an Ethereum address (using [Torus Discord login](https://app.tor.us/) or any)
 - I declare my Ethereum address
-- I submit a proposal (I need to show invoices, proofs, etc) asking for an amount labelled in MATIC
+
+#### Submit a proposal
+
+- I submit a proposal asking for an amount labelled in MATIC
 - The other members vote (adding a `thumb up` emoji)
-- I get the money in cash
+- I get the money in cash (MATIC)
 
-## Set up
+#### Claim 
 
-- Deploy an instance of Concord.sol
+- I claim a task that I performed
+- The other members vote (adding a `thumb up` emoji)
+- I get the requested amount of tokens
+
+#### Tipping 
+
+- As a member, I can tip another user in Discord
+- As a non-member, I first need to topup my account
+
+## Setup
+
 - Add the bot your Discord server
+- Deploy an instance of Concord.sol
 - Call for contributions
 
 ## Contact
