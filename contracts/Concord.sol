@@ -23,7 +23,7 @@ contract Concord is ERC20, Ownable {
     
     function register(address _member) public onlyOwner {
         users.push(
-		User({
+	    User({
                 addr: _member,
 		bal: 200 * 10**18,
 		member: true
