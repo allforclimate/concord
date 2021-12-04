@@ -56,7 +56,7 @@ describe("Interactions", function () {
     expect(await concord.balanceOf(alice.address)).to.equal(ethers.utils.parseEther("301"));
   });
 
-  it("Francis sends 100 MATIC to the DAO and topups his account", async function () {
+  it("Francis sends 100 ETH to the DAO and topups his account", async function () {
     const give = await concord.connect(francis).give({value: ethers.utils.parseEther("100")});
     const topup = await concord.topup(2, francis.address, ethers.utils.parseEther("1"));
     const francisBal = await concord.users(2);

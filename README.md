@@ -1,4 +1,4 @@
-# Kiez DAO
+# Concord
 
 A new form of DAO.
 
@@ -10,20 +10,32 @@ The idea is to give citizens an easy way to create a DAO for their neighborhood.
 
 ```
 cd concord
-npm i
+npm install
 ```
 
-## Test
+## Test the Solidity contract
 
 ```
 npx hardhat test
 ```
 
-## Run
+## Test the Discord bot
+
+You can check [this tutorial](https://anidiots.guide/getting-started/getting-started-long-version/) to learn how to test this bot.
+
+Add a `.env` file and add your own credentials. 
+
+```
+cd discord-bot
+node index.js
+```
+
+## Test the frontend
 
 ```
 cd frontend
-yarn start
+yarn install
+yarn react-app:start
 ```
 
 ## User workflow
@@ -34,19 +46,19 @@ yarn start
 - I get myself an Ethereum address (using [Torus Discord login](https://app.tor.us/) or any)
 - I declare my Ethereum address
 
-#### Submit a proposal
+##### Submit a proposal
 
 - I submit a proposal asking for an amount labelled in MATIC
 - The other members vote (adding a `thumb up` emoji)
 - I get the money in cash (MATIC)
 
-#### Claim 
+##### Claim a task
 
 - I claim a task that I performed
 - The other members vote (adding a `thumb up` emoji)
 - I get the requested amount of tokens
 
-#### Tipping 
+##### Tip someone
 
 - As a member, I can tip another user in Discord
 - As a non-member, I first need to topup my account

@@ -1,8 +1,11 @@
 const hre = require("hardhat");
 const fs = require('fs');
-// const { ethers } = require("hardhat");
 
-const contractsDir = __dirname + '/../frontend/src/contracts';
+// We want ABIs and address in both frontend/ and bot/ repositories
+
+// const contractsDir = __dirname + '/../frontend/src/contracts'; // old
+// const contractsDir = __dirname + '/../frontend/contracts/src/ . . . '; // to edit
+const contractsDir = __dirname + '/../bot/contracts';
 
 async function main() {
   if (network.name === 'hardhat') {
