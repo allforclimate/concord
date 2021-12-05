@@ -1,29 +1,48 @@
-// We require the Hardhat Runtime Environment explicitly here. This is optional
-// but useful for running the script in a standalone fashion through `node <script>`.
-//
-// When running the script with `npx hardhat run <script>` you'll find the Hardhat
-// Runtime Environment's members available in the global scope.
 const hre = require("hardhat");
+const fs = require('fs');
+
+// We want ABIs and address in both frontend/ and bot/ repositories
+
+// const contractsDir = __dirname + '/../frontend/src/contracts'; // old
+// const contractsDir = __dirname + '/../frontend/contracts/src/ . . . '; // to edit
+const contractsDir = __dirname + '/../bot/contracts';
 
 async function main() {
-  // Hardhat always runs the compile task when running scripts with its command
-  // line interface.
-  //
-  // If this script is run directly using `node` you may want to call compile
-  // manually to make sure everything is compiled
-  // await hre.run('compile');
+  if (network.name === 'hardhat') {
+    console.log('network: ', network.name);
+    console.warn(
+      'You are trying to deploy a contract to the Hardhat Network, which' +
+        'gets automatically created and destroyed every time. Use the Hardhat' +
+        " option '--network localhost'"
+    );
+  }
 
-  // We get the contract to deploy
-  const KiezDAO = await hre.ethers.getContractFactory("KiezDAO");
-  const kiezdao = await KiezDAO.deploy();
+  console.log('network id: ', network.config.chainId);
 
-  await kiezdao.deployed();
+  let discordBot;
+  let bob;
+  
+  [discordBot, bob] = await ethers.getSigners();
 
-  console.log("Kiez DAO deployed to:", kiezdao.address);
+  const Concord = await ethers.getContractFactory('Concord');
+  const concord = await Concord.deploy(discordBot.address,bob.address);
+
+  saveFrontendFiles(concord);
+
+  console.log('Concord deployed to ', concord.address);
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
+function saveFrontendFiles(concord) {
+  const ConcordArtifact = artifacts.readArtifactSync('Concord');
+
+  if (!fs.existsSync(contractsDir)) {
+    fs.mkdirSync(contractsDir);
+  }
+
+  fs.writeFileSync(contractsDir + '/Concord.json', JSON.stringify(ConcordArtifact, null, 2));
+  fs.writeFileSync(contractsDir + '/contractAddress.json', JSON.stringify({ Concord: concord.address }, undefined, 2));
+}
+
 main()
   .then(() => process.exit(0))
   .catch((error) => {
