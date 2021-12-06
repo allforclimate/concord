@@ -51,18 +51,46 @@ describe("Interactions", function () {
     expect(aliceBalFormatted).to.equal(ethers.utils.parseEther("180"));
   });
 
-  it("Alice claims 300 units", async function () {
-    const call = await concord.claim(alice.address, ethers.utils.parseEther("300"), "1 week of community management");
-    expect(await concord.balanceOf(alice.address)).to.equal(ethers.utils.parseEther("301"));
+  it("Alice claims 20 units", async function () {
+    const call = await concord.claim(alice.address, ethers.utils.parseEther("20"), "1 week of community management");
+    expect(await concord.balanceOf(alice.address)).to.equal(ethers.utils.parseEther("21"));
   });
 
-  it("Francis sends 100 ETH to the DAO and topups his account", async function () {
+  it("Francis sends 100 ETH to the contract and topups his account", async function () {
     const give = await concord.connect(francis).give({value: ethers.utils.parseEther("100")});
     const topup = await concord.topup(2, francis.address, ethers.utils.parseEther("1"));
     const francisBal = await concord.users(2);
     const francisBalFormatted = francisBal.bal.toString();
     expect(francisBalFormatted).to.equal(ethers.utils.parseEther("1"));
   });
+  
+  it("Francis wants to ragequit", async function () {
 
+    const call = await concord.executeProposal(bob.address, ethers.utils.parseEther("1.99"), "Pay my lawyer");
+
+    console.log(" ");
+
+    const bal1 = await ethers.provider.getBalance(concord.address);
+    const balFormatted1 = ethers.utils.formatEther(bal1.toString());
+    console.log("    concord balance (before): ", balFormatted1);
+
+    const amountToCashOutRaw = 100;
+    const amountToCashOut = amountToCashOutRaw.toString();
+    
+    const rageQuit = await concord.connect(francis).rageQuit(ethers.utils.parseEther(amountToCashOut));
+    
+    console.log(" ");
+
+    const bal2 = await ethers.provider.getBalance(concord.address);
+    const balFormatted2 = ethers.utils.formatEther(bal2.toString());
+
+    console.log("    concord balance (after): ", balFormatted2);
+    console.log(" ");
+    console.log("    Diff:", balFormatted2 - balFormatted1, "🎉");
+    console.log(" ");
+
+    expect(await ethers.provider.getBalance(concord.address)).to.equal(ethers.utils.parseEther("76.247030878859857500"));
+
+  });
 
 });
