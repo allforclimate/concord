@@ -23,7 +23,7 @@ npx hardhat test
 
 You can check [this tutorial](https://anidiots.guide/getting-started/getting-started-long-version/) to learn how to test this bot.
 
-Add a `.env` file and add your own credentials. 
+Add a `.env` file and add your own credentials. You want to duplicate and rename [`.env.template`](https://github.com/AllForClimate/concord/blob/main/discord/.env.example).
 
 ```
 cd discord-bot
@@ -69,9 +69,10 @@ yarn react-app:start
 - Deploy an instance of Concord.sol
 - Call for contributions
 
-## Contact
+## Contrib
 
-You can join us on [Discord](https://discord.gg/uSxzJp3J76) if you want to talk.
+Feel very free to clone the repo, create your own branch from `develop`, suggest new features or pick one of [these issues](https://github.com/AllForClimate/concord/issues).  
 
+We're available in [Discord](https://discord.gg/uSxzJp3J76).
 
 
