@@ -5,14 +5,8 @@ import React, { useEffect, useState } from "react";
 import { ethers } from 'ethers';
 import { Body, Button, Header, Link, SuperButton } from "./components";
 import useWeb3Modal from "./hooks/useWeb3Modal";
-
 import { addresses, abis } from "@project/contracts";
 import GET_TRANSFERS from "./graphql/subgraph";
-
-// const contractBalance = 1;
-// const give = 1;
-//const donate = 1;
-// const userBalance = 1; //
 
 function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
 
