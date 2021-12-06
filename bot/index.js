@@ -1,686 +1,113 @@
-const { Client, Intents } = require("discord.js");
+// This will check if the node version you are running is the required
+// Node version, if it isn't it will throw the following error to inform
+// you.
+if (Number(process.version.slice(1).split(".")[0]) < 16) throw new Error("Node 16.x or higher is required. Update Node on your system.");
+require("dotenv").config();
 
-// const { abis } = require("./contracts/src/abis.js"); // to fix
-// const abi = require("./abi.js"); // returns "{}"
+// Load up the discord.js library
+const {
+    Client,
+    Collection
+} = require("discord.js");
+// We also load the rest of the things we need in this file:
+const {
+    readdirSync
+} = require("fs");
+const {
+    intents,
+    partials,
+    permLevels
+} = require("./config.js");
+const logger = require("./modules/Logger.js");
 
-const ethers = require('ethers');
-const utils = require('ethers');
-const { Wallet } = require('ethers');
-require('dotenv').config();
-const key = process.env.DISCORD_BOT_TOKEN;
-
+// This is your client. Some people call it `bot`, some people call it `self`,
+// some might call it `cootchie`. Either way, when you see `client.something`,
+// or `bot.something`, this is what we're referring to. Your client.
 const client = new Client({
-    intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES]
-  });
-
-function getInfuraProvider() {
-    const apiKey = {
-        projectId: process.env.INFURA_PROJECT_ID,
-        projectSecret: process.env.INFURA_PROJECT_SECRET
-    };
-    const provider = new ethers.providers.InfuraProvider(network=process.env.NETWORK, apiKey);
-    return provider;
-}
-
-const provider = getInfuraProvider();
-const wallet = Wallet.fromMnemonic(process.env.MNEMONIC);
-const connectedWallet = wallet.connect(provider);
-
-async function shoot() {
-
-    try {
-
-        let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC); 
-        wallet = wallet.connect(provider);   
-        const abi = [
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "bot",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "_member",
-                        "type": "address"
-                    }
-                ],
-                "stateMutability": "payable",
-                "type": "constructor"
-            },
-            {
-                "anonymous": false,
-                "inputs": [
-                    {
-                        "indexed": true,
-                        "internalType": "address",
-                        "name": "owner",
-                        "type": "address"
-                    },
-                    {
-                        "indexed": true,
-                        "internalType": "address",
-                        "name": "spender",
-                        "type": "address"
-                    },
-                    {
-                        "indexed": false,
-                        "internalType": "uint256",
-                        "name": "value",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "Approval",
-                "type": "event"
-            },
-            {
-                "anonymous": false,
-                "inputs": [
-                    {
-                        "indexed": true,
-                        "internalType": "address",
-                        "name": "beneficiary",
-                        "type": "address"
-                    },
-                    {
-                        "indexed": true,
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    },
-                    {
-                        "indexed": true,
-                        "internalType": "string",
-                        "name": "task",
-                        "type": "string"
-                    }
-                ],
-                "name": "Claimed",
-                "type": "event"
-            },
-            {
-                "anonymous": false,
-                "inputs": [
-                    {
-                        "indexed": true,
-                        "internalType": "address",
-                        "name": "previousOwner",
-                        "type": "address"
-                    },
-                    {
-                        "indexed": true,
-                        "internalType": "address",
-                        "name": "newOwner",
-                        "type": "address"
-                    }
-                ],
-                "name": "OwnershipTransferred",
-                "type": "event"
-            },
-            {
-                "anonymous": false,
-                "inputs": [
-                    {
-                        "indexed": true,
-                        "internalType": "address",
-                        "name": "beneficiary",
-                        "type": "address"
-                    },
-                    {
-                        "indexed": true,
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    },
-                    {
-                        "indexed": true,
-                        "internalType": "string",
-                        "name": "reason",
-                        "type": "string"
-                    }
-                ],
-                "name": "ProposalExecuted",
-                "type": "event"
-            },
-            {
-                "anonymous": false,
-                "inputs": [
-                    {
-                        "indexed": true,
-                        "internalType": "address",
-                        "name": "from",
-                        "type": "address"
-                    },
-                    {
-                        "indexed": true,
-                        "internalType": "address",
-                        "name": "to",
-                        "type": "address"
-                    },
-                    {
-                        "indexed": false,
-                        "internalType": "uint256",
-                        "name": "value",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "Transfer",
-                "type": "event"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "owner",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "spender",
-                        "type": "address"
-                    }
-                ],
-                "name": "allowance",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "spender",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "approve",
-                "outputs": [
-                    {
-                        "internalType": "bool",
-                        "name": "",
-                        "type": "bool"
-                    }
-                ],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "account",
-                        "type": "address"
-                    }
-                ],
-                "name": "balanceOf",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "checkBalance",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "checkTokenBalance",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "beneficiary",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "task",
-                        "type": "string"
-                    }
-                ],
-                "name": "claim",
-                "outputs": [],
-                "stateMutability": "payable",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "decimals",
-                "outputs": [
-                    {
-                        "internalType": "uint8",
-                        "name": "",
-                        "type": "uint8"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "spender",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "subtractedValue",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "decreaseAllowance",
-                "outputs": [
-                    {
-                        "internalType": "bool",
-                        "name": "",
-                        "type": "bool"
-                    }
-                ],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "beneficiary",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "string",
-                        "name": "reason",
-                        "type": "string"
-                    }
-                ],
-                "name": "executeProposal",
-                "outputs": [],
-                "stateMutability": "payable",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "give",
-                "outputs": [],
-                "stateMutability": "payable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "spender",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "addedValue",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "increaseAllowance",
-                "outputs": [
-                    {
-                        "internalType": "bool",
-                        "name": "",
-                        "type": "bool"
-                    }
-                ],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "name",
-                "outputs": [
-                    {
-                        "internalType": "string",
-                        "name": "",
-                        "type": "string"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "owner",
-                "outputs": [
-                    {
-                        "internalType": "address",
-                        "name": "",
-                        "type": "address"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "rageQuit",
-                "outputs": [],
-                "stateMutability": "payable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "_member",
-                        "type": "address"
-                    }
-                ],
-                "name": "register",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "renounceOwnership",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "shutDown",
-                "outputs": [
-                    {
-                        "internalType": "string",
-                        "name": "",
-                        "type": "string"
-                    }
-                ],
-                "stateMutability": "payable",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "symbol",
-                "outputs": [
-                    {
-                        "internalType": "string",
-                        "name": "",
-                        "type": "string"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "tipper",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "recipient",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "tip",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "_id",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "_user",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "_amount",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "topup",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [],
-                "name": "totalSupply",
-                "outputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "recipient",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "transfer",
-                "outputs": [
-                    {
-                        "internalType": "bool",
-                        "name": "",
-                        "type": "bool"
-                    }
-                ],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "sender",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "address",
-                        "name": "recipient",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "amount",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "transferFrom",
-                "outputs": [
-                    {
-                        "internalType": "bool",
-                        "name": "",
-                        "type": "bool"
-                    }
-                ],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "address",
-                        "name": "newOwner",
-                        "type": "address"
-                    }
-                ],
-                "name": "transferOwnership",
-                "outputs": [],
-                "stateMutability": "nonpayable",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "users",
-                "outputs": [
-                    {
-                        "internalType": "address",
-                        "name": "addr",
-                        "type": "address"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "bal",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "bool",
-                        "name": "member",
-                        "type": "bool"
-                    }
-                ],
-                "stateMutability": "view",
-                "type": "function"
-            },
-            {
-                "inputs": [
-                    {
-                        "internalType": "uint256",
-                        "name": "_id",
-                        "type": "uint256"
-                    },
-                    {
-                        "internalType": "uint256",
-                        "name": "_amount",
-                        "type": "uint256"
-                    }
-                ],
-                "name": "withdraw",
-                "outputs": [],
-                "stateMutability": "payable",
-                "type": "function"
-            },
-            {
-                "stateMutability": "payable",
-                "type": "receive"
-            }
-        ];
-        const addr = "0xD70294E4b40e7D9cEb16447Ebb41b90D02199EF5";
-        const concord = new ethers.Contract(addr, abi, wallet);
-
-        const call = await concord.users(0); // The first member
-
-        // const call = await concord.register("0x961fF506d6516633056c57315bE10a12fa449Ebc", {gasLimit: 21000000});
-
-        console.log("call: ", call);
-
-    } catch (err) {
-        console.error(err);
-    }
-}
-
-const call = shoot();
-
-client.on("ready", () => {
-  console.log("On");
-  // console.log("ABI: ", abi);
-  // console.log( "connectedWallet.address: ", connectedWallet.address);
+    intents,
+    partials
 });
 
-let prefix = "!";
-client.on("messageCreate", (message) => {
-    
-    if (!message.content.startsWith(prefix) || message.author.bot) return;
-    
-    if (message.content.startsWith(`${prefix}dance`)) {
-        message.channel.send("Watch me!");
-    } else
-  
-    if (message.content.startsWith(`${prefix}quote`)) {
-        message.channel.send("\"Anything beautiful is worth getting hurt for.\" - Prince");
-    } else
-  
-    if (message.content.startsWith(`${prefix}network`)) {
-        message.channel.send( "You're connected to " + `${provider._network.name}`);
-    } else
+// Aliases, commands and slash commands are put in collections where they can be
+// read from, catalogued, listed, etc.
+const commands = new Collection();
+const aliases = new Collection();
+const slashcmds = new Collection();
 
-    if (message.content.startsWith(`${prefix}addr`)) {
-        message.channel.send( "My wallet address is " + `${wallet.address}` + ". Thanks for asking! 🙂");
+// Generate a cache of client permissions for pretty perm names in commands.
+const levelCache = {};
+for (let i = 0; i < permLevels.length; i++) {
+    const thisLevel = permLevels[i];
+    levelCache[thisLevel.name] = thisLevel.level;
+}
+
+// To reduce client pollution we'll create a single container property
+// that we can attach everything we need to.
+client.container = {
+    commands,
+    aliases,
+    slashcmds,
+    levelCache
+};
+
+// We're doing real fancy node 8 async/await stuff here, and to do that
+// we need to wrap stuff in an anonymous function. It's annoying but it works.
+
+const init = async() => {
+
+    // Load the bot with a wallet
+    const ethers = require('ethers');
+    const { getInfuraProvider, getCCBalance } = require('./modules/functions.js');
+    const provider = getInfuraProvider();
+    let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC);
+    wallet = wallet.connect(provider);
+    let balance = await getCCBalance(wallet.address);
+    logger.log(`Bot has ${balance} CC in its wallet.`);
+
+    // Here we load **commands** into memory, as a collection, so they're accessible
+    // here and everywhere else.
+    const commands = readdirSync("./commands/").filter(file => file.endsWith(".js"));
+    for (const file of commands) {
+        const props = require(`./commands/${file}`);
+        logger.log(`Loading Command: ${props.help.name}. 👌`, "log");
+        client.container.commands.set(props.help.name, props);
+        props.conf.aliases.forEach(alias => {
+            client.container.aliases.set(alias, props.help.name);
+        });
     }
 
-});
+    // Now we load any **slash** commands you may have in the ./slash directory.
+    const slashFiles = readdirSync("./slash").filter(file => file.endsWith(".js"));
+    for (const file of slashFiles) {
+        const command = require(`./slash/${file}`);
+        const commandName = file.split(".")[0];
+        logger.log(`Loading Slash command: ${commandName}. 👌`, "log");
 
-client.login(key);
-console.log("Done");
+        // Now set the name of the command with it's properties.
+        client.container.slashcmds.set(command.commandData.name, command);
+    }
+
+    // Then we load events, which will include our message and ready event.
+    const eventFiles = readdirSync("./events/").filter(file => file.endsWith(".js"));
+    for (const file of eventFiles) {
+        const eventName = file.split(".")[0];
+        logger.log(`Loading Event: ${eventName}. 👌`, "log");
+        const event = require(`./events/${file}`);
+        // Bind the client to any event, before the existing arguments
+        // provided by the discord.js event. 
+        // This line is awesome by the way. Just sayin'.
+        client.on(eventName, event.bind(null, client));
+    }
+
+    // Threads are currently in BETA.
+    // This event will fire when a thread is created, if you want to expand
+    // the logic, throw this in it's own event file like the rest.
+    client.on("threadCreate", (thread) => thread.join());
+
+    // Here we login the client.
+    client.login();
+
+    // End top-level async/await function.
+};
+
+init();
