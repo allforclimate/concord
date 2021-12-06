@@ -2,9 +2,9 @@ import { useQuery } from "@apollo/react-hooks";
 import { Contract } from "@ethersproject/contracts";
 import { getDefaultProvider } from "@ethersproject/providers";
 import React, { useEffect, useState } from "react";
+import { ethers } from 'ethers';
 import { Body, Button, Header, Link, SuperButton } from "./components";
 import useWeb3Modal from "./hooks/useWeb3Modal";
-import { ethers } from 'ethers';
 import { addresses, abis } from "@project/contracts";
 import GET_TRANSFERS from "./graphql/subgraph";
 
@@ -60,13 +60,10 @@ function App() {
   const { loading, error, data } = useQuery(GET_TRANSFERS);
   const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
   const [account, setAccount] = useState("");
-  const [userBalance, setUserBalance] = useState(0);
-  const [contractBalance, setContractBalance] = useState(0);
-  const [give, setGive] = useState(false);
   const [txBeingSent, setTxBeingSent] = useState(false);
-
-  fetchContractBalance();
-  fetchUserBalance(account);
+  const [contractBalance, setContractBalance] = useState(0);
+  const [userBalance, setUserBalance] = useState(0);
+  const [give, setGive] = useState(false);
 
   useEffect(() => {
     async function fetchAccount() {
@@ -84,39 +81,42 @@ function App() {
       }
     }
     fetchAccount();
-  }, [account, provider, setAccount]);
 
-  async function fetchContractBalance() {
+    async function fetchContractBalance() {
 
-    try {
-      
-      const defaultProvider = getDefaultProvider(4);
-      const concordBalance = await defaultProvider.getBalance(addresses.concord);      
-      const concordBalanceFormatted = ethers.utils.formatEther(concordBalance);
-      setContractBalance(concordBalanceFormatted);
-      console.log("Contract ETH balance: ", concordBalanceFormatted);
-      
-    } catch (err) {
-      console.error(err);
+      try {
+        
+        const defaultProvider = getDefaultProvider(4);
+        const concordBalance = await defaultProvider.getBalance(addresses.concord);      
+        const concordBalanceFormatted = ethers.utils.formatEther(concordBalance);
+        setContractBalance(concordBalanceFormatted);
+        console.log("Contract ETH balance: ", concordBalanceFormatted);
+        
+      } catch (err) {
+        console.error(err);
+      }
     }
-  }
+    fetchContractBalance();
 
-  async function fetchUserBalance(account) {
+    async function fetchUserBalance(account) {
 
-    try {
-      
-      const defaultProvider = getDefaultProvider(4);
-      const concord = new Contract(addresses.concord, abis.concord, defaultProvider);
-      const userTokenBalance = await concord.balanceOf(account);
-      const userTokenBalanceFormatted = ethers.utils.formatEther(userTokenBalance);
-      setUserBalance(userTokenBalanceFormatted);
-      
-    } catch (err) {
-      setUserBalance(0);
-      console.error(err);
+      try {
+        
+        // This is causing a weird error: "resolver or addr is not configured for ENS name"
+        const defaultProvider = getDefaultProvider(4);
+        const concord = new Contract(addresses.concord, abis.concord, defaultProvider);
+        const userTokenBalance = await concord.balanceOf(account);
+        const userTokenBalanceFormatted = ethers.utils.formatEther(userTokenBalance);
+        setUserBalance(userTokenBalanceFormatted);
+        
+      } catch (err) {
+        console.error(err);
+      }
     }
-  }
-  
+    fetchUserBalance(account);
+    
+  }, [account, userBalance, contractBalance, provider, setAccount]);
+
   async function donate() {
 
     try {
@@ -125,7 +125,7 @@ function App() {
 
       const signer = provider.getSigner(0);
       const concord = new Contract(addresses.concord, abis.concord, signer);
-      const giveTx = await concord.give({value: ethers.utils.parseEther("0.000000008")});
+      const giveTx = await concord.give({value: ethers.utils.parseEther("0.0000002")});
 
       const receipt = await giveTx.wait();
 
@@ -140,9 +140,9 @@ function App() {
       console.error(err);
     } finally {
       setTxBeingSent(false);
-      fetchUserBalance(account);
     }
   }
+  
 
   React.useEffect(() => {
     if (!loading && !error && data && data.transfers) {
@@ -171,7 +171,7 @@ function App() {
         }
 
         <SuperButton onClick={() => donate()}>
-          Donate 0.000000008 ETH
+          Donate 0.0000002 ETH
         </SuperButton>
         {userBalance > 0 &&
         <p>

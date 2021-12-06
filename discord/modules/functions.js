@@ -1,6 +1,10 @@
 const logger = require("./Logger.js");
 const config = require("../config.js");
 const { settings } = require("./settings.js");
+const fs = require('fs');
+const { ethers } = require("ethers");
+const { registeredUsers } = require("./tables.js");
+
 // Let's start by getting some useful functions that we'll use throughout
 // the bot, like logs and elevation features.
 
@@ -89,7 +93,61 @@ function getTodayString() {
   let mm = String(today.getMonth() + 1).padStart(2, '0');
   let yyyy = String(today.getFullYear());
 
-  return yyyy + mm + dd
+  return yyyy + mm + dd;
+};
+
+// getInfuraProvider() returns a ethers.Provider object connected to Infura using the
+// API key stored in the environment variable
+function getInfuraProvider() {
+    const apiKey = {
+        projectId: process.env.INFURA_PROJECT_ID,
+        projectSecret: process.env.INFURA_PROJECT_SECRET
+    };
+    const provider = new ethers.providers.InfuraProvider(network=process.env.NETWORK, apiKey);
+    return provider;
+}
+
+// getCCBalance(String) returns the balance of CC tokens that a wallet has
+async function getCCBalance(address) {
+    address = ethers.utils.getAddress(address);
+    const provider = getInfuraProvider();
+    const abiFile = fs.readFileSync('../contracts/abi/CC.json');
+    const abiCC = JSON.parse(abiFile);
+    const contract = new ethers.Contract(process.env.CC_TOKEN_ADDRESS, abiCC, provider);
+    let balance = await contract.balanceOf(address);
+    balance = ethers.utils.formatEther(balance);
+
+    return balance;
+};
+
+// isRegistered(String) checks it he user has registered their wallet
+function isRegistered(userId) {
+    return registeredUsers.indexes.includes(userId);
+};
+
+// canVote(String) checks if the user is registered and has enough coins in wallet to be able to vote
+async function canVote(userId) {
+    if (isRegistered(userId)) {
+        const address = registeredUsers.get(userId);
+        const balance = await getCCBalance(address);
+        return balance > config.min_token_amount;
+    } else {
+        return false;
+    }
+};
+
+// submitProposal(string, bool) ensures that votes from Discord are placed on-chain by submitting
+// the proposal to the Reality module.
+
+function submitProposal(proposalId, outcome) {
+
+    // Load provider and bot wallet
+    const provider = getInfuraProvider();
+    let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC);
+    wallet = wallet.connect(provider);
+    const realityContract = new ethers.Contract()
+
+    return false;
 }
 
 // These 2 process methods will catch exceptions and give *more details* about the error and stack trace.
@@ -107,4 +165,15 @@ process.on("unhandledRejection", err => {
   console.error(err);
 });
 
-module.exports = { getSettings, permlevel, awaitReply, toProperCase, getTodayString };
+module.exports = { 
+    getSettings, 
+    permlevel, 
+    awaitReply, 
+    toProperCase, 
+    getTodayString, 
+    getCCBalance,
+    isRegistered,
+    canVote,
+    getInfuraProvider,
+    submitProposal
+};
