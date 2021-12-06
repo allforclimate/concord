@@ -4,6 +4,8 @@ const { settings } = require("./settings.js");
 const fs = require('fs');
 const { ethers } = require("ethers");
 const { registeredUsers } = require("./tables.js");
+// const addresses = require('../bot/contract/concordAddress.js');
+
 
 // Let's start by getting some useful functions that we'll use throughout
 // the bot, like logs and elevation features.
@@ -107,15 +109,18 @@ function getInfuraProvider() {
     return provider;
 }
 
-// getCCBalance(String) returns the balance of CC tokens that a wallet has
-async function getCCBalance(address) {
-    address = ethers.utils.getAddress(address);
+// getTokenBalance(String) returns the balance of tokens that a wallet has
+async function getTokenBalance(userAddress) {
+  userAddress = ethers.utils.getAddress(userAddress);
     const provider = getInfuraProvider();
-    const abiFile = fs.readFileSync('../contracts/abi/CC.json');
-    const abiCC = JSON.parse(abiFile);
-    const contract = new ethers.Contract(process.env.CC_TOKEN_ADDRESS, abiCC, provider);
-    let balance = await contract.balanceOf(address);
+    const abiFile = fs.readFileSync('modules/concordAbi.json');
+    const abi = JSON.parse(abiFile);
+    const addressFile = fs.readFileSync('modules/concordAddress.json');
+    const addr = JSON.parse(addressFile);
+    const contract = new ethers.Contract(addr.concord, abi, provider);
+    let balance = await contract.balanceOf(userAddress);
     balance = ethers.utils.formatEther(balance);
+    console.log("bal: ", balance);
 
     return balance;
 };
@@ -128,8 +133,8 @@ function isRegistered(userId) {
 // canVote(String) checks if the user is registered and has enough coins in wallet to be able to vote
 async function canVote(userId) {
     if (isRegistered(userId)) {
-        const address = registeredUsers.get(userId);
-        const balance = await getCCBalance(address);
+        const userAddress = registeredUsers.get(userId);
+        const balance = await getTokenBalance(userAddress);
         return balance > config.min_token_amount;
     } else {
         return false;
@@ -171,7 +176,7 @@ module.exports = {
     awaitReply, 
     toProperCase, 
     getTodayString, 
-    getCCBalance,
+    getTokenBalance,
     isRegistered,
     canVote,
     getInfuraProvider,
