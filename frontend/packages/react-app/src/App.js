@@ -2,12 +2,17 @@ import { useQuery } from "@apollo/react-hooks";
 import { Contract } from "@ethersproject/contracts";
 import { getDefaultProvider } from "@ethersproject/providers";
 import React, { useEffect, useState } from "react";
-// import { ContractFactory } from 'ethers';
+import { ethers } from 'ethers';
 import { Body, Button, Header, Link, SuperButton } from "./components";
 import useWeb3Modal from "./hooks/useWeb3Modal";
 
 import { addresses, abis } from "@project/contracts";
 import GET_TRANSFERS from "./graphql/subgraph";
+
+// const contractBalance = 1;
+// const give = 1;
+//const donate = 1;
+// const userBalance = 1; //
 
 function WalletButton({ provider, loadWeb3Modal, logoutOfWeb3Modal }) {
 
@@ -61,9 +66,10 @@ function App() {
   const { loading, error, data } = useQuery(GET_TRANSFERS);
   const [provider, loadWeb3Modal, logoutOfWeb3Modal] = useWeb3Modal();
   const [account, setAccount] = useState("");
-  const [balance, setBalance] = useState("?");
-  const [registered, setRegistered] = useState(false);
   const [txBeingSent, setTxBeingSent] = useState(false);
+  const [contractBalance, setContractBalance] = useState(0);
+  const [userBalance, setUserBalance] = useState(0);
+  const [give, setGive] = useState(false);
 
   useEffect(() => {
     async function fetchAccount() {
@@ -81,53 +87,68 @@ function App() {
       }
     }
     fetchAccount();
-  }, [account, provider, setAccount]);
 
-  async function fetchBalance(account) {
+    async function fetchContractBalance() {
 
-    try {
-      
-      // Probably should get it from useWeb3Modal({})[0]
-      const defaultProvider = getDefaultProvider(4);
-
-      const ccToken = new Contract(addresses.cc, abis.CC, defaultProvider);
-      const tokenBalance = await ccToken.balanceOf(account);
-      const tokenBalanceFormatted = tokenBalance.toString() / 1000000000000000000;
-      console.log({ tokenBalance: tokenBalanceFormatted });
-      setBalance(tokenBalanceFormatted);
-      
-    } catch (err) {
-      setBalance(0);
-      console.error(err);
+      try {
+        
+        const defaultProvider = getDefaultProvider(4);
+        const concordBalance = await defaultProvider.getBalance(addresses.concord);      
+        const concordBalanceFormatted = ethers.utils.formatEther(concordBalance);
+        setContractBalance(concordBalanceFormatted);
+        console.log("Contract ETH balance: ", concordBalanceFormatted);
+        
+      } catch (err) {
+        console.error(err);
+      }
     }
-  }
-  
-  async function register() {
+    fetchContractBalance();
+
+    async function fetchUserBalance(account) {
+
+      try {
+        
+        // This is causing a weird error: "resolver or addr is not configured for ENS name"
+        const defaultProvider = getDefaultProvider(4);
+        const concord = new Contract(addresses.concord, abis.concord, defaultProvider);
+        const userTokenBalance = await concord.balanceOf(account);
+        const userTokenBalanceFormatted = ethers.utils.formatEther(userTokenBalance);
+        setUserBalance(userTokenBalanceFormatted);
+        
+      } catch (err) {
+        console.error(err);
+      }
+    }
+    fetchUserBalance(account);
+    
+  }, [account, userBalance, contractBalance, provider, setAccount]);
+
+  async function donate() {
 
     try {
       
       setTxBeingSent(true);
 
       const signer = provider.getSigner(0);
-      const ccToken = new Contract(addresses.cc, abis.CC, signer);
-      const RegisterTx = await ccToken.register();
+      const concord = new Contract(addresses.concord, abis.concord, signer);
+      const giveTx = await concord.give({value: ethers.utils.parseEther("0.0000002")});
 
-      const receipt = await RegisterTx.wait();
+      const receipt = await giveTx.wait();
 
         if (receipt.status === 0) {
             throw new Error("Failed");
         }
 
-      setRegistered(true);
+      setGive(true);
       
     } catch (err) {
-      setRegistered(false);
+      setGive(false);
       console.error(err);
     } finally {
       setTxBeingSent(false);
-      fetchBalance(account);
     }
   }
+  
 
   React.useEffect(() => {
     if (!loading && !error && data && data.transfers) {
@@ -142,26 +163,28 @@ function App() {
       </Header>
       <Body>
         <p>
-          Your CC balance: {balance}
+          Concord balance: {contractBalance} ETH
         </p>
         {txBeingSent === true &&
         <p>
           Processing...
         </p>
         }
-        {registered === true &&
+        {give === true &&
         <p>
-          You're properly registered. Yay!
+          Thank you very much! 🙂
         </p>
         }
 
-        <SuperButton onClick={() => fetchBalance(account)}>
-          Check my balance
+        <SuperButton onClick={() => donate()}>
+          Donate 0.0000002 ETH
         </SuperButton>
-        <SuperButton onClick={() => register()}>
-          Register
-        </SuperButton>
-        <Link href="" style={{ marginTop: "8px" }}></Link>
+        {userBalance > 0 &&
+        <p>
+          You own {userBalance} CC tokens.
+        </p>
+        }
+        <p><Link href="https://rinkeby.etherscan.io/address/0xD70294E4b40e7D9cEb16447Ebb41b90D02199EF5" style={{ marginTop: "8px" }}>See on Etherscan</Link></p>
       </Body>
     </div>
   );
