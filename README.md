@@ -6,6 +6,8 @@ A new form of DAO.
 
 The idea is to give citizens an easy way to create a DAO for their neighborhood. So that they can start rebuilding local resilience, reclaim empty spaces, manage commons, organize. 
 
+The project is documented in [this Wiki](https://github.com/AllForClimate/concord/wiki).
+
 ## Install
 
 ```
@@ -26,7 +28,7 @@ You can check [this tutorial](https://anidiots.guide/getting-started/getting-sta
 Add a `.env` file and add your own credentials. You want to duplicate and rename [`.env.template`](https://github.com/AllForClimate/concord/blob/main/discord/.env.example).
 
 ```
-cd discord-bot
+cd bot
 node index.js
 ```
 

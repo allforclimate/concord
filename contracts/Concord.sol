@@ -4,11 +4,9 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "prb-math/contracts/PRBMathUD60x18.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
 
 contract Concord is ERC20, Ownable {
 
-    // using SafeMath for uint256;
     using PRBMathUD60x18 for uint256;
     
     event ProposalExecuted(address indexed beneficiary, uint256 indexed amount, string indexed reason);
@@ -34,7 +32,7 @@ contract Concord is ERC20, Ownable {
 		        member: true
 	    })
 	);
-        _mint(address(this), 200 * 10**18);
+    _mint(address(this), 200 * 10**18);
     }
     
     function executeProposal(address beneficiary, uint256 amount, string memory reason) public payable onlyOwner {
@@ -70,7 +68,7 @@ contract Concord is ERC20, Ownable {
                 member: false
             })
         );
-	    users[_id].bal += _amount;
+        users[_id].bal += _amount;
         _transfer(address(this),_user,_amount);
     }
 
@@ -78,12 +76,6 @@ contract Concord is ERC20, Ownable {
         users[_id].bal -= _amount;
         _transfer(address(this),users[_id].addr,_amount);
     }
-
-    /**
-    * https://ethereum.stackexchange.com/questions/83785/what-fixed-or-float-point-math-libraries-are-available-in-solidity
-    * https://medium.com/coinmonks/math-in-solidity-part-1-numbers-384c8377f26d
-    * https://github.com/hifi-finance/prb-math/blob/main/contracts/PRBMathUD60x18.sol
-    */
 
     function rageQuit(uint amount) public payable returns (uint) {
         require(balanceOf(msg.sender) >= amount, "Too high");
@@ -100,7 +92,7 @@ contract Concord is ERC20, Ownable {
     function shutDown() public payable returns (string memory) {
         // checks if msg.sender is a member
         // if x % of the members trigger it within a month, 
-        // distribute all MATIC to CC holders
+        // distribute all ETH to token holders
         // and revoke ownership
         return "Game over";
     }    
