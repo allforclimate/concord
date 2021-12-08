@@ -10,7 +10,7 @@ contract Concord is ERC20, Ownable {
     using PRBMathUD60x18 for uint256;
     
     event ProposalExecuted(address indexed beneficiary, uint256 indexed amount, string indexed reason);
-    event Claimed(address indexed beneficiary, uint256 indexed amount, string indexed task);
+    event Claimed(uint256 indexed beneficiary, uint256 indexed amount, string indexed task);
 
     struct User {
     	address addr;
@@ -41,8 +41,9 @@ contract Concord is ERC20, Ownable {
         emit ProposalExecuted(beneficiary, amount, reason);
     }
 
-    function claim(address beneficiary, uint256 amount, string memory task) public payable onlyOwner {
-        _mint(beneficiary, amount);
+    function claim(uint256 beneficiary, uint256 amount, string memory task) public payable onlyOwner {
+        _mint(address(this), amount);
+        users[beneficiary].bal += amount;
         emit Claimed(beneficiary, amount, task);
     }
 
