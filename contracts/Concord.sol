@@ -67,7 +67,7 @@ contract Concord is ERC20, Ownable {
     }
 
     function tip(uint256 tipper, uint256 recipient, uint256 amount) public onlyOwner {
-        require(users[tipper].bal > amount, "Can't tip"); // can also be done off-chain
+        require(users[tipper].bal > amount, "Can't tip");
         users[tipper].bal = users[tipper].bal - amount;
         users[recipient].bal = users[recipient].bal + amount;
     }
@@ -85,20 +85,18 @@ contract Concord is ERC20, Ownable {
     }
 
     function withdraw(uint256 _id, uint256 _amount) public payable onlyOwner {
-        require(users[_id].bal > _amount, "not enough tokens");
-        users[_id].bal -= 5000000000000000000;
+        require(users[_id].bal > _amount, "Not enough tokens");
+        users[_id].bal -= _amount;
         _transfer(address(this),users[_id].addr,_amount);
     }
 
-    function rageQuit(uint amount) public payable returns (uint) {
+    function rageQuit(uint amount) public payable {
         require(balanceOf(msg.sender) >= amount, "Too high");
         _burn(msg.sender, amount);
         uint256 ethBal = address(this).balance;
         uint256 supply = totalSupply();
-        uint256 z = ethBal.div(supply);        
-        uint256 x = z.mul(amount);
-        payable(msg.sender).transfer(x);
-        return x;
+        uint256 x = ethBal.div(supply);        
+        payable(msg.sender).transfer(x.mul(amount));
     }
 
     // TO DO
