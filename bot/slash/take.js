@@ -19,6 +19,7 @@ exports.run = async (client, interaction) => { // eslint-disable-line no-unused-
     const wallet = Wallet.fromMnemonic(process.env.MNEMONIC);
     const fs = require('fs');
 
+    let txHash;
     async function shoot() {
         try {
             let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC); 
@@ -37,8 +38,11 @@ exports.run = async (client, interaction) => { // eslint-disable-line no-unused-
             const call = await concord.claim(userAddr, amount, task);    
             console.log("call: ", call);
 
-            const txHash = call.hash;
+            txHash = call.hash;
             console.log("txHash: ", txHash);
+            // return txHash;
+
+            await interaction.editReply(`Here you go! Here's your tx hash: https://rinkeby.etherscan.io/tx/${txHash} \n \n  In v0.1.1, you'll be able to tip other people or withdraw your tokens anytime you say.`);
     
         } catch (err) {
             console.error(err);
@@ -47,7 +51,8 @@ exports.run = async (client, interaction) => { // eslint-disable-line no-unused-
     
     const call = shoot();
 
-    await interaction.editReply(`Here you go!`);
+    // await interaction.editReply(`Here you go! ${txHash}`);
+
   };
   
   exports.commandData = {
