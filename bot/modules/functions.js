@@ -135,7 +135,7 @@ async function canVote(userId) {
     if (isRegistered(userId)) {
         const userAddress = registeredUsers.get(userId);
         const balance = await getTokenBalance(userAddress);
-        return balance > config.min_token_amount;
+        return balance > 0.0000001;
     } else {
         return false;
     }
