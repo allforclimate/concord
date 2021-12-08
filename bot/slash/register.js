@@ -9,7 +9,8 @@ exports.run = async (client, interaction) => { // eslint-disable-line no-unused-
 
   if (ethers.utils.isAddress(address)) {
     registeredUsers.set(userId, address);
-    interaction.editReply({content: `Thanks for registering ${author}`, ephemeral: true})
+    // interaction.editReply({content: `Thanks for registering ${author}`, ephemeral: true})
+    interaction.editReply({content: `Thanks!`, ephemeral: true})
       .then(() => console.log('Replied successfully.'))
       .catch(console.error);
   } else {
