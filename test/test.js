@@ -52,8 +52,8 @@ describe("Interactions", function () {
   });
 
   it("Alice claims 20 units", async function () {
-    const call = await concord.claim(alice.address, ethers.utils.parseEther("20"), "1 week of community management");
-    expect(await concord.balanceOf(alice.address)).to.equal(ethers.utils.parseEther("21"));
+    const call = await concord.claim(1, ethers.utils.parseEther("20"), "1 week of community management");
+    expect(await concord.connect(alice).checkTokenBalance()).to.equal(ethers.utils.parseEther("220"));
   });
 
   it("Francis sends 100 ETH to the contract and topups his account", async function () {
