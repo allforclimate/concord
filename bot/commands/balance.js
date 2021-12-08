@@ -11,7 +11,7 @@ exports.run = async (client, message, args, level) => {
         if(isRegistered(authorId)) {
             const address = registeredUsers.get(authorId);
             let balance = await getTokenBalance(address);
-            message.reply(`You have ${balance.substring(0,18)} tokens in your registered wallet.`);
+            message.reply(`You have ${balance.substring(0,20)} tokens in your registered wallet.`);
         } else {
             message.reply(`Looks like you haven't registered your wallet address. ` +  
             `Please first register your wallet using the \`register\` command.`)
