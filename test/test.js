@@ -16,7 +16,7 @@ describe("Deployment", function () {
 
   it("Should deploy Concord.sol", async function () {
     Concord = await ethers.getContractFactory("Concord");
-    concord = await Concord.deploy(discordBot.address, bob.address, {value: ethers.utils.parseEther("1")});
+    concord = await Concord.deploy(discordBot.address, bob.address, "Concord", "CC", ethers.utils.parseEther("20"), {value: ethers.utils.parseEther("1")});
     expect(await concord.owner()).to.equal(discordBot.address);
   });
 
@@ -24,36 +24,38 @@ describe("Deployment", function () {
 
 describe("Interactions", function () {
 
-  it("Alice gives 1 ETH to the contract", async function () {
-    const giveCall = await concord.connect(alice).give({value: ethers.utils.parseEther("1")});
-    expect(await ethers.provider.getBalance(concord.address)).to.equal(ethers.utils.parseEther("2"));
+  it("Alice gives 2000 MATIC to the contract", async function () {
+    const giveCall = await concord.connect(alice).give({value: ethers.utils.parseEther("2000")});
+    expect(await ethers.provider.getBalance(concord.address)).to.equal(ethers.utils.parseEther("2001"));
   });
 
   it("Concord executes Bob's proposal", async function () {
-    const call = await concord.executeProposal(bob.address, ethers.utils.parseEther("0.01"), "Pay my lawyer");
-    expect(await ethers.provider.getBalance(concord.address)).to.equal(ethers.utils.parseEther("1.99"));
+    const call = await concord.executeProposal(bob.address, ethers.utils.parseEther("500"), "Pay my lawyer");
+    expect(await ethers.provider.getBalance(concord.address)).to.equal(ethers.utils.parseEther("1501"));
   });
 
-  it("Concord registers Alice as a new member", async function () {
-    const call = await concord.connect(discordBot).register(alice.address);
-    expect(await concord.balanceOf(concord.address)).to.equal(ethers.utils.parseEther("400"));
+  it("Alice joins as a new member", async function () {
+    const call = await concord.connect(discordBot).register(alice.address, 1, ethers.utils.parseEther("20"));
+    expect(await concord.balanceOf(concord.address)).to.equal(ethers.utils.parseEther("20"));
   });
 
-  it("Bob withdraws his tokens", async function () {
-    const call = await concord.connect(discordBot).withdraw(0, ethers.utils.parseEther("200"));
-    expect(await concord.balanceOf(bob.address)).to.equal(ethers.utils.parseEther("200"));
+  it("Bob withdraws 5 tokens", async function () {
+    const call = await concord.connect(discordBot).withdraw(0, ethers.utils.parseEther("10"));
+    expect(await concord.balanceOf(bob.address)).to.equal(ethers.utils.parseEther("10"));
   });
 
   it("Alice sends 10 units to Bob ", async function () {
-    const call = await concord.connect(discordBot).tip(1, 0, ethers.utils.parseEther("20"));
+    const call = await concord.connect(discordBot).tip(1, 0, ethers.utils.parseEther("10"));
     const aliceBal = await concord.users(1);
     const aliceBalFormatted = aliceBal.bal.toString();
-    expect(aliceBalFormatted).to.equal(ethers.utils.parseEther("180"));
+    expect(aliceBalFormatted).to.equal(ethers.utils.parseEther("30"));
   });
 
-  it("Alice claims 20 units", async function () {
-    const call = await concord.claim(1, ethers.utils.parseEther("20"), "1 week of community management");
-    expect(await concord.connect(alice).checkTokenBalance()).to.equal(ethers.utils.parseEther("220"));
+  it("Alice claims 200 units", async function () {
+    const call = await concord.claim(1, ethers.utils.parseEther("200"), "1 week of community management");
+    const aliceBalRaw = await concord.users(1);
+    const aliceBal = aliceBalRaw.bal.toString();
+    expect(aliceBalRaw.bal.toString()).to.equal(ethers.utils.parseEther("230"));
   });
 
   it("Francis sends 100 ETH to the contract and topups his account", async function () {
@@ -67,7 +69,7 @@ describe("Interactions", function () {
   it("Francis wants to ragequit", async function () {
 
     const call = await concord.executeProposal(bob.address, ethers.utils.parseEther("1.99"), "Pay my lawyer");
-
+   
     console.log(" ");
 
     const bal1 = await ethers.provider.getBalance(concord.address);
@@ -89,7 +91,7 @@ describe("Interactions", function () {
     console.log("    Diff:", balFormatted2 - balFormatted1, "🎉");
     console.log(" ");
 
-    expect(await ethers.provider.getBalance(concord.address)).to.equal(ethers.utils.parseEther("76.247030878859857500"));
+    expect(await ethers.provider.getBalance(concord.address)).to.equal(ethers.utils.parseEther("1526.982522522522522600"));
 
   });
 
