@@ -32,10 +32,10 @@ exports.run = async (client, interaction) => { // eslint-disable-line no-unused-
             const concord = new ethers.Contract(addr.concord, abi, wallet);
 
             const userAddr = "0x8CCbFaAe6BC02a73BBe8d6d8017cC8313E4C90A7";
-            const amount = 1;
+            const amount = ethers.utils.parseEther("100");
             const task = "Gave a hand.";
     
-            const call = await concord.claim(userAddr, amount, task);    
+            const call = await concord.claim(0, amount, task);    
             console.log("call: ", call);
 
             txHash = call.hash;

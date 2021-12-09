@@ -3,17 +3,59 @@
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "bot",
+				"name": "_bot",
 				"type": "address"
 			},
 			{
 				"internalType": "address",
 				"name": "_member",
 				"type": "address"
+			},
+			{
+				"internalType": "string",
+				"name": "_name",
+				"type": "string"
+			},
+			{
+				"internalType": "string",
+				"name": "_symbol",
+				"type": "string"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_welcome",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "payable",
 		"type": "constructor"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "prod1",
+				"type": "uint256"
+			}
+		],
+		"name": "PRBMath__MulDivFixedPointOverflow",
+		"type": "error"
+	},
+	{
+		"inputs": [
+			{
+				"internalType": "uint256",
+				"name": "prod1",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "denominator",
+				"type": "uint256"
+			}
+		],
+		"name": "PRBMath__MulDivOverflow",
+		"type": "error"
 	},
 	{
 		"anonymous": false,
@@ -45,9 +87,9 @@
 		"inputs": [
 			{
 				"indexed": true,
-				"internalType": "address",
+				"internalType": "uint256",
 				"name": "beneficiary",
-				"type": "address"
+				"type": "uint256"
 			},
 			{
 				"indexed": true,
@@ -230,9 +272,9 @@
 	{
 		"inputs": [
 			{
-				"internalType": "address",
+				"internalType": "uint256",
 				"name": "beneficiary",
-				"type": "address"
+				"type": "uint256"
 			},
 			{
 				"internalType": "uint256",
@@ -386,6 +428,16 @@
 				"internalType": "address",
 				"name": "_member",
 				"type": "address"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_id",
+				"type": "uint256"
+			},
+			{
+				"internalType": "uint256",
+				"name": "_bal",
+				"type": "uint256"
 			}
 		],
 		"name": "register",
@@ -575,6 +627,19 @@
 				"internalType": "bool",
 				"name": "member",
 				"type": "bool"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"name": "welcome",
+		"outputs": [
+			{
+				"internalType": "uint256",
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"stateMutability": "view",
