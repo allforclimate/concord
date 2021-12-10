@@ -155,6 +155,37 @@ function submitProposal(proposalId, outcome) {
     return false;
 }
 
+async function concordClaim(id, amount, proposal) {
+  try {
+    // load wallet and provider
+    let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC); 
+    const provider = getInfuraProvider();
+    wallet = wallet.connect(provider);   
+
+    // load contract
+    const abiFile = fs.readFileSync('modules/concordAbi.json');
+    const abi = JSON.parse(abiFile);
+    const addressRaw = fs.readFileSync('modules/concordAddress.json');
+    const addr = JSON.parse(addressRaw);
+    const concord = new ethers.Contract(addr.concord, abi, wallet);
+
+    amount = ethers.utils.parseEther(String(amount));
+
+    const call = await concord.claim(0, amount, proposal);    
+    console.log("call: ", call);
+
+    txHash = call.hash;
+    console.log("txHash: ", txHash);
+    // return txHash;
+
+    // do we want to wait until the transaction is mined?
+    return txHash
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 // These 2 process methods will catch exceptions and give *more details* about the error and stack trace.
 process.on("uncaughtException", (err) => {
   const errorMsg = err.stack.replace(new RegExp(`${__dirname}/`, "g"), "./");
@@ -180,5 +211,6 @@ module.exports = {
     isRegistered,
     canVote,
     getInfuraProvider,
-    submitProposal
+    submitProposal,
+    concordClaim
 };

@@ -1,5 +1,5 @@
 const { proposals } = require('../modules/tables.js');
-const { getTodayString, permlevel } = require('../modules/functions.js');
+const { getTodayString, permlevel, concordClaim } = require('../modules/functions.js');
 const { majorityVote } = require('../modules/voting.js');
 const { MessageActionRow, MessageButton } = require("discord.js");
 
@@ -9,6 +9,7 @@ exports.run = async (client, interaction) => {
   try {
     const proposal_text = interaction.options.getString('proposal');
     const voting_type = interaction.options.getString('voting type');
+    const amount = interaction.options.getInteger('amount');
 
     // Post the claim in the "claims" channel for admins to approve or deny
     const proposalsChannel = client.channels.cache.find(channel => channel.name == 'proposals');
@@ -83,7 +84,9 @@ exports.run = async (client, interaction) => {
 
       // Update ephemeral reply to user with conclusion of vote
       if (decision == 'pass') {
-        await interaction.editReply(`Congrats! Your proposal has passed!`)
+        await interaction.editReply(`Congrats! Your proposal has passed!`);
+        const txHash = await concordClaim(0, amount, proposal_text);
+        await interaction.editReply(`Here you go! Here's your tx hash: https://rinkeby.etherscan.io/tx/${txHash} \n \n  In v0.1.1, you'll be able to tip other people or withdraw your tokens anytime you say.`);
       } else if (decision == 'fail') {
         await interaction.editReply(`Sorry, looks like the community doesn't agree with your proposal.`)
       } else {
@@ -151,7 +154,7 @@ exports.commandData = {
       name: "amount",
       description: "If proposal carries a budget requirement, provide required budget.",
       type: 4, // type 4 == int
-      required: false
+      required: true
     },
     {
       name: "voting",
