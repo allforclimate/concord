@@ -23,6 +23,12 @@ npx hardhat test
 
 ## Test the Discord bot
 
+In [this short video](https://youtu.be/0LOVJoY1Lc0):
+
+- A member submits a proposal 
+- The community vot in Discord
+- The result of the vote triggers a Ethereum transaction 
+
 You can check [this tutorial](https://anidiots.guide/getting-started/getting-started-long-version/) to learn how to test this bot.
 
 Add a `.env` file and add your own credentials. You want to duplicate and rename [`.env.template`](https://github.com/AllForClimate/concord/blob/main/discord/.env.example).
@@ -33,6 +39,10 @@ node index.js
 ```
 
 ## Test the frontend
+
+The frontend is availaible at [https://concord-frontend.netlify.app/](https://concord-frontend.netlify.app/)
+
+To test it locally:
 
 ```
 cd frontend
@@ -58,7 +68,7 @@ yarn react-app:start
 
 - I claim a task that I performed
 - The other members vote (adding a `thumb up` emoji)
-- I get the requested amount of tokens
+- I get the requested amount of tokens 
 
 ##### Tip someone
 
