@@ -63,6 +63,7 @@ function App() {
   const [txBeingSent, setTxBeingSent] = useState(false);
   const [contractBalance, setContractBalance] = useState(0);
   const [userBalance, setUserBalance] = useState(0);
+  const [userInContractBalance, setUserInContractBalance] = useState(0);
   const [give, setGive] = useState(false);
 
   useEffect(() => {
@@ -87,6 +88,7 @@ function App() {
       try {
         
         const defaultProvider = getDefaultProvider(4);
+        
         const concordBalance = await defaultProvider.getBalance(addresses.concord);      
         const concordBalanceFormatted = ethers.utils.formatEther(concordBalance);
         setContractBalance(concordBalanceFormatted);
@@ -102,20 +104,21 @@ function App() {
 
       try {
         
-        // This is causing a weird error: "resolver or addr is not configured for ENS name"
         const defaultProvider = getDefaultProvider(4);
+
         const concord = new Contract(addresses.concord, abis.concord, defaultProvider);
         const userTokenBalance = await concord.balanceOf(account);
         const userTokenBalanceFormatted = ethers.utils.formatEther(userTokenBalance);
+
         setUserBalance(userTokenBalanceFormatted);
+        // setUserInContractBalance();
         
       } catch (err) {
         console.error(err);
       }
     }
     fetchUserBalance(account);
-    
-  }, [account, userBalance, contractBalance, provider, setAccount]);
+  }, [account, userBalance, userInContractBalance, contractBalance, provider, setAccount]);
 
   async function donate() {
 
@@ -140,6 +143,7 @@ function App() {
       console.error(err);
     } finally {
       setTxBeingSent(false);
+      window.location.reload();
     }
   }
   
@@ -173,12 +177,18 @@ function App() {
         <SuperButton onClick={() => donate()}>
           Donate 0.0000002 ETH
         </SuperButton>
+        
         {userBalance > 0 &&
         <p>
-          You own {userBalance} CC tokens.
+          You have {userBalance} CC tokens on your wallet.
         </p>
         }
-        <p><Link href="https://rinkeby.etherscan.io/address/0xD70294E4b40e7D9cEb16447Ebb41b90D02199EF5" style={{ marginTop: "8px" }}>See on Etherscan</Link></p>
+        {userInContractBalance > 0 &&
+        <p>
+          Please check your account balance in Discord using the /balance command.
+        </p>
+        }
+        <p><Link href="https://rinkeby.etherscan.io/address/0x8de5469C2e9ED83100121AC84Ad3884Bbf296D26" style={{ marginTop: "8px" }}>See on Etherscan</Link></p>
       </Body>
     </div>
   );
