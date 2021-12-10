@@ -12,6 +12,8 @@ contract Concord is ERC20, Ownable {
     event ProposalExecuted(address indexed beneficiary, uint256 indexed amount, string indexed reason);
     event Claimed(uint256 indexed beneficiary, uint256 indexed amount, string indexed task);
 
+    uint256 public welcome;
+
     struct User {
     	address addr;
 	    uint256 bal;
@@ -19,20 +21,29 @@ contract Concord is ERC20, Ownable {
     }
     User[] public users;
     
-    constructor(address bot, address _member) ERC20("CC Token", "CC") payable {
-        register(_member);
-        transferOwnership(bot);
+    constructor(
+        address _bot, 
+        address _member,
+        string memory _name, 
+        string memory _symbol, 
+        uint256 _welcome
+    )
+        ERC20(_name, _symbol) payable {
+        register(_member, 0, _welcome);
+        transferOwnership(_bot);
+        welcome = _welcome;
     }
     
-    function register(address _member) public onlyOwner {
+    function register(address _member, uint256 _id, uint256 _bal) public onlyOwner {
         users.push(
 	        User({
                 addr: _member,
-		        bal: 200 * 10**18,
+		        bal: _bal,
 		        member: true
 	    })
 	);
-    _mint(address(this), 200 * 10**18);
+    _mint(address(this), welcome);
+    users[_id].bal += welcome;
     }
     
     function executeProposal(address beneficiary, uint256 amount, string memory reason) public payable onlyOwner {
@@ -56,7 +67,7 @@ contract Concord is ERC20, Ownable {
     }
 
     function tip(uint256 tipper, uint256 recipient, uint256 amount) public onlyOwner {
-        require(users[tipper].bal > amount, "Can't tip"); // can also be done off-chain
+        require(users[tipper].bal > amount, "Can't tip");
         users[tipper].bal = users[tipper].bal - amount;
         users[recipient].bal = users[recipient].bal + amount;
     }
@@ -74,19 +85,18 @@ contract Concord is ERC20, Ownable {
     }
 
     function withdraw(uint256 _id, uint256 _amount) public payable onlyOwner {
+        require(users[_id].bal > _amount, "Not enough tokens");
         users[_id].bal -= _amount;
         _transfer(address(this),users[_id].addr,_amount);
     }
 
-    function rageQuit(uint amount) public payable returns (uint) {
+    function rageQuit(uint amount) public payable {
         require(balanceOf(msg.sender) >= amount, "Too high");
         _burn(msg.sender, amount);
         uint256 ethBal = address(this).balance;
         uint256 supply = totalSupply();
-        uint256 z = ethBal.div(supply);        
-        uint256 x = z.mul(amount);
-        payable(msg.sender).transfer(x);
-        return x;
+        uint256 x = ethBal.div(supply);        
+        payable(msg.sender).transfer(x.mul(amount));
     }
 
     // TO DO

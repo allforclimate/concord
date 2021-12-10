@@ -1,5 +1,5 @@
 const addresses = {
-  concord: "0xD70294E4b40e7D9cEb16447Ebb41b90D02199EF5",
+  concord: "0x8de5469C2e9ED83100121AC84Ad3884Bbf296D26",
 };
 
 export default addresses;

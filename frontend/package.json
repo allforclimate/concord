@@ -23,5 +23,8 @@
     "packages": [
       "packages/*"
     ]
+  },
+  "dependencies": {
+    "ethers": "^5.5.2"
   }
 }
