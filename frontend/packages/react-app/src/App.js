@@ -63,7 +63,7 @@ function App() {
   const [txBeingSent, setTxBeingSent] = useState(false);
   const [contractBalance, setContractBalance] = useState(0);
   const [userBalance, setUserBalance] = useState(0);
-  // const [userInContractBalance, setUserInContractBalance] = useState(0);
+  const [userInContractBalance, setUserInContractBalance] = useState(0);
   const [give, setGive] = useState(false);
 
   useEffect(() => {
@@ -106,23 +106,19 @@ function App() {
         
         const defaultProvider = getDefaultProvider(4);
 
-        // console.log("addresses.concord: ", addresses.concord);
-        // console.log("abis.concord: ", addresses.concord);
-        // console.log("defaultProvider: ", defaultProvider);
-
         const concord = new Contract(addresses.concord, abis.concord, defaultProvider);
         const userTokenBalance = await concord.balanceOf(account);
         const userTokenBalanceFormatted = ethers.utils.formatEther(userTokenBalance);
 
         setUserBalance(userTokenBalanceFormatted);
+        // setUserInContractBalance();
         
       } catch (err) {
         console.error(err);
       }
     }
     fetchUserBalance(account);
-  // }, [account, userBalance, userInContractBalance, contractBalance, provider, setAccount]);
-  }, [account, userBalance, contractBalance, provider, setAccount]);
+  }, [account, userBalance, userInContractBalance, contractBalance, provider, setAccount]);
 
   async function donate() {
 
@@ -187,7 +183,7 @@ function App() {
           You have {userBalance} CC tokens on your wallet.
         </p>
         }
-        {userBalance === 0 &&
+        {userInContractBalance > 0 &&
         <p>
           Please check your account balance in Discord using the /balance command.
         </p>
