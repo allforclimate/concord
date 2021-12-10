@@ -132,13 +132,13 @@ Now we need to implement one by one all the features of the smart contract in bo
 
 ### Docs
     
-Github repo: https://github.com/AllForClimate/concord
-Discord bot demo video: https://youtu.be/0LOVJoY1Lc0
-Frontend: https://concord-frontend.netlify.app/
-Wiki: https://github.com/AllForClimate/concord/wiki
-Workflow description: https://whimsical.com/main-h1ifYnZxGyWdQ5E6y92R4
-Etherscan contract page: https://rinkeby.etherscan.io/address/0x8de5469c2e9ed83100121ac84ad3884bbf296d26
-Discord: https://discord.com/invite/uSxzJp3J76
-Open issue: https://github.com/AllForClimate/concord/issues
+- Github repo: https://github.com/AllForClimate/concord
+- Discord bot demo video: https://youtu.be/0LOVJoY1Lc0
+- Frontend: https://concord-frontend.netlify.app/
+- Wiki: https://github.com/AllForClimate/concord/wiki
+- Workflow description: https://whimsical.com/main-h1ifYnZxGyWdQ5E6y92R4
+- Etherscan contract page: https://rinkeby.etherscan.io/address/0x8de5469c2e9ed83100121ac84ad3884bbf296d26
+- Discord: https://discord.com/invite/uSxzJp3J76
+- Open issue: https://github.com/AllForClimate/concord/issues
 
 
