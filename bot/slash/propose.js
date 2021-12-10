@@ -62,6 +62,9 @@ exports.run = async (client, interaction) => {
         }
       }
 
+      console.log(yes_votes);
+      console.log(no_votes);
+
       i.update({
         content: proposal_message_content + `\n Tally so far: \n ${yes_votes.size} yay | ${no_votes.size} nay`,
         components: [buttons]
@@ -71,7 +74,7 @@ exports.run = async (client, interaction) => {
     collector.on('end', async collected => {
 
       key = getTodayString();
-      let decision, yes_vote_count, no_vote_count;
+      let decision;
 
       // get decision based on voting type chosen
       switch (voting_type) {
@@ -132,6 +135,7 @@ exports.run = async (client, interaction) => {
           }
         };
       }
+      interaction.deleteReply();
       proposals.set(key, today_proposals);
       console.log(proposals);
     });

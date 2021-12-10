@@ -1,5 +1,5 @@
 
-exports.majorityVote = async (yes_votes, no_votes, proposalMessage, proposal_text) => {
+exports.majorityVote = async (yes_votes, no_votes, proposalMessage) => {
   const yes_vote_count = yes_votes.size;
   const no_vote_count = no_votes.size;
   let decision = '';
@@ -28,5 +28,5 @@ exports.majorityVote = async (yes_votes, no_votes, proposalMessage, proposal_tex
     });
   }
 
-  return [decision, yes_vote_count, no_vote_count];
+  return decision;
 }
