@@ -60,15 +60,15 @@ yarn react-app:start
 
 ##### Submit a proposal
 
-- I submit a proposal asking for an amount labelled in MATIC
-- The other members vote (adding a `thumb up` emoji)
-- I get the money in cash (MATIC)
+- I submit a proposal asking for an amount labelled in the DAOs currency of choice
+- The other members vote by clicking the "Yay" or "Nay" buttons
+- I get the money in cash
 
 ##### Claim a task
 
 - I claim a task that I performed
-- The other members vote (adding a `thumb up` emoji)
-- I get the requested amount of tokens 
+- The other members vote by clicking the "Yay" or "Nay" buttons
+- I get the requested amount of tokens
 
 ##### Tip someone
 
