@@ -20,6 +20,7 @@ contract Concord is ERC20, Ownable {
         bool member;
     }
     User[] public users;
+    mapping(address => uint256) public userId;
     
     constructor(
         address _bot, 
@@ -40,10 +41,11 @@ contract Concord is ERC20, Ownable {
                 addr: _member,
 		        bal: _bal,
 		        member: true
-	    })
-	);
-    _mint(address(this), welcome);
-    users[_id].bal += welcome;
+	        })
+	    );
+        _mint(address(this), welcome);
+        users[_id].bal += welcome;
+        userId[_member] = users.length + 1;
     }
     
     function executeProposal(address beneficiary, uint256 amount, string memory reason) public payable onlyOwner {
@@ -81,6 +83,7 @@ contract Concord is ERC20, Ownable {
             })
         );
         users[_id].bal += _amount;
+        userId[_user] = users.length + 1;
         _transfer(address(this),_user,_amount);
     }
 
@@ -99,20 +102,17 @@ contract Concord is ERC20, Ownable {
         payable(msg.sender).transfer(x.mul(amount));
     }
 
-    // TO DO
-    function shutDown() public payable returns (string memory) {
-        // checks if msg.sender is a member
-        // if x % of the members trigger it within a month, 
-        // distribute all ETH to token holders
-        // and revoke ownership
-        return "Game over";
-    }    
-
     function checkBalance() public view returns (uint256) {
         return address(this).balance;
     }
 
     function checkTokenBalance() public view returns (uint256) {
         return balanceOf(address(this));
+    }
+
+    function getUserId(address _userAddress) public view returns(uint256) {
+        
+        return userId[_userAddress];
+
     }
 }

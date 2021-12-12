@@ -95,4 +95,12 @@ describe("Interactions", function () {
 
   });
 
+  it("Get user's ID", async function () {
+    console.log(" ");
+    
+    const testRaw = await concord.getUserId(bob.address);
+    const test = ethers.utils.formatEther(testRaw.toString());
+    console.log("    Test: ", test);
+  });
+
 });
