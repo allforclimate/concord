@@ -155,7 +155,7 @@ function submitProposal(proposalId, outcome) {
     return false;
 }
 
-async function concordClaim(id, amount, proposal) {
+async function concordClaim(address, amount, proposal) {
   try {
     // load wallet and provider
     let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC); 
@@ -168,17 +168,17 @@ async function concordClaim(id, amount, proposal) {
     const addressRaw = fs.readFileSync('modules/concordAddress.json');
     const addr = JSON.parse(addressRaw);
     const concord = new ethers.Contract(addr.concord, abi, wallet);
-
+    
     amount = ethers.utils.parseEther(String(amount));
-
-    const call = await concord.claimTask(1, amount, proposal);    
+    
+    // How do I get the Ethereum address of the user who submitted the proposal, please? :)
+    const myIdRaw = await concord.getUserId("0x8CCbFaAe6BC02a73BBe8d6d8017cC8313E4C90A7");
+    const call = await concord.claimTask(myIdRaw, amount, proposal);    
     console.log("call: ", call);
 
+    // do we want to wait until the transaction is mined?
     txHash = call.hash;
     console.log("txHash: ", txHash);
-    // return txHash;
-
-    // do we want to wait until the transaction is mined?
     return txHash
 
   } catch (err) {

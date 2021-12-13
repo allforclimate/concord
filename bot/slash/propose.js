@@ -2,6 +2,8 @@ const { proposals } = require('../modules/tables.js');
 const { getTodayString, permlevel, concordClaim } = require('../modules/functions.js');
 const { majorityVote } = require('../modules/voting.js');
 const { MessageActionRow, MessageButton } = require("discord.js");
+const { registeredUsers } = require('../modules/tables.js');
+
 
 exports.run = async (client, interaction) => {
   await interaction.deferReply({ ephemeral: true });
@@ -85,7 +87,10 @@ exports.run = async (client, interaction) => {
       // Update ephemeral reply to user with conclusion of vote
       if (decision == 'pass') {
         await interaction.editReply(`Congrats! Your proposal has passed!`);
-        const txHash = await concordClaim(1, amount, proposal_text);
+        
+        // We need the Ethereum address of that user
+        const address = registeredUsers.get(interaction.user.userId);
+        const txHash = await concordClaim(address, amount, proposal_text);
         await interaction.editReply(`Here you go! Here's your tx hash: https://rinkeby.etherscan.io/tx/${txHash} \n \n  In v0.1.1, you'll be able to tip other people or withdraw your tokens anytime you say.`);
       } else if (decision == 'fail') {
         await interaction.editReply(`Sorry, looks like the community doesn't agree with your proposal.`)
