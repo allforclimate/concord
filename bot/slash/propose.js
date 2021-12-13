@@ -62,9 +62,6 @@ exports.run = async (client, interaction) => {
         }
       }
 
-      console.log(yes_votes);
-      console.log(no_votes);
-
       i.update({
         content: proposal_message_content + `\n Tally so far: \n ${yes_votes.size} yay | ${no_votes.size} nay`,
         components: [buttons]
@@ -74,7 +71,7 @@ exports.run = async (client, interaction) => {
     collector.on('end', async collected => {
 
       key = getTodayString();
-      let decision;
+      let decision, yes_vote_count, no_vote_count;
 
       // get decision based on voting type chosen
       switch (voting_type) {
@@ -88,7 +85,7 @@ exports.run = async (client, interaction) => {
       // Update ephemeral reply to user with conclusion of vote
       if (decision == 'pass') {
         await interaction.editReply(`Congrats! Your proposal has passed!`);
-        const txHash = await concordClaim(0, amount, proposal_text);
+        const txHash = await concordClaim(1, amount, proposal_text);
         await interaction.editReply(`Here you go! Here's your tx hash: https://rinkeby.etherscan.io/tx/${txHash} \n \n  In v0.1.1, you'll be able to tip other people or withdraw your tokens anytime you say.`);
       } else if (decision == 'fail') {
         await interaction.editReply(`Sorry, looks like the community doesn't agree with your proposal.`)
@@ -135,7 +132,6 @@ exports.run = async (client, interaction) => {
           }
         };
       }
-      interaction.deleteReply();
       proposals.set(key, today_proposals);
       console.log(proposals);
     });

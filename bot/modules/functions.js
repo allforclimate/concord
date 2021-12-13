@@ -171,7 +171,7 @@ async function concordClaim(id, amount, proposal) {
 
     amount = ethers.utils.parseEther(String(amount));
 
-    const call = await concord.claim(0, amount, proposal);    
+    const call = await concord.claimTask(1, amount, proposal);    
     console.log("call: ", call);
 
     txHash = call.hash;
