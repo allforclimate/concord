@@ -64,8 +64,8 @@ describe("Interactions", function () {
   it("Francis sends 100 MATIC to the contract and topups his account", async function () {
     await concord.connect(francis).give({value: ethers.utils.parseEther("100")});
     await concord.connect(discordBot).registerUser(francis.address);
-    await concord.topup(2, francis.address, ethers.utils.parseEther("1"));
-    const francisBal = await concord.users(2);
+    await concord.topup(3, francis.address, ethers.utils.parseEther("1"));
+    const francisBal = await concord.users(3);
     const francisBalFormatted = francisBal.bal.toString();
     expect(francisBalFormatted).to.equal(ethers.utils.parseEther("1"));
   });
@@ -93,8 +93,8 @@ describe("Interactions", function () {
     const aliceBal = fetch2.bal;
     const fetch3 = await concord.users(getId3);
     const francisBal = fetch3.bal;
-    expect(bobBal.toString()).to.equal(ethers.utils.parseEther("21"));
-    expect(aliceBal.toString()).to.equal(ethers.utils.parseEther("209"));
+    expect(bobBal.toString()).to.equal(ethers.utils.parseEther("209"));
+    expect(aliceBal.toString()).to.equal(ethers.utils.parseEther("20"));
     expect(francisBal.toString()).to.equal(ethers.utils.parseEther("1"));
   });
 
@@ -102,5 +102,5 @@ describe("Interactions", function () {
     getFrancisBal3 = await concord.getInContractBalance(francis.address);
     expect(getFrancisBal3.toString()).to.equal(ethers.utils.parseEther("1"));
   });
-
+  
 });

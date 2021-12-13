@@ -21,13 +21,14 @@ contract Concord is ERC20, Ownable {
     }
     User[] public users;
     mapping(address => uint256) public userId;
-    
+
+    /// @dev First member gets member id "1"
     /// @param _bot Discord bot's address
-    /// @param _member first member's address
-    /// @param _name name of the ERC-20 token
-    /// @param _symbol symbol of the ERC-20 token
-    /// @param _welcome amount of tokens to transfer to a newly registerd member
-    
+    /// @param _member First member's address
+    /// @param _name Name of the ERC-20 token
+    /// @param _symbol Symbol of the ERC-20 token
+    /// @param _welcome Amount of tokens to transfer to a newly registerd member
+
     constructor(
         address _bot, 
         address _member,
@@ -39,12 +40,12 @@ contract Concord is ERC20, Ownable {
         welcome = _welcome;
         users.push(
 	        User({
-                addr: _member,
-		        bal: welcome,
-		        member: true
+                addr: 0x0000000000000000000000000000000000000000,
+		        bal: 0,
+		        member: false
 	        })
 	    );
-        _mint(address(this), welcome);
+        registerMember(_member);
         transferOwnership(_bot);
     }
     
