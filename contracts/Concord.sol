@@ -17,10 +17,18 @@ contract Concord is ERC20, Ownable {
     struct User {
     	address addr;
 	    uint256 bal;
-        bool member;
+        bool member; // returns true when user is a member (i.e. a voting user)
     }
     User[] public users;
-    
+    mapping(address => uint256) public userId;
+
+    /// @dev First member gets member id "1"
+    /// @param _bot Discord bot's address
+    /// @param _member First member's address
+    /// @param _name Name of the ERC-20 token
+    /// @param _symbol Symbol of the ERC-20 token
+    /// @param _welcome Amount of tokens to transfer to a newly registerd member
+
     constructor(
         address _bot, 
         address _member,
@@ -29,21 +37,39 @@ contract Concord is ERC20, Ownable {
         uint256 _welcome
     )
         ERC20(_name, _symbol) payable {
-        register(_member, 0, _welcome);
-        transferOwnership(_bot);
         welcome = _welcome;
+        users.push(
+	        User({
+                addr: 0x0000000000000000000000000000000000000000,
+		        bal: 0,
+		        member: false
+	        })
+	    );
+        registerMember(_member);
+        transferOwnership(_bot);
     }
     
-    function register(address _member, uint256 _id, uint256 _bal) public onlyOwner {
+    function registerUser(address _member) public onlyOwner {
         users.push(
 	        User({
                 addr: _member,
-		        bal: _bal,
+		        bal: 0,
+		        member: false
+	        })
+	    );
+        userId[_member] = users.length - 1;
+    }
+
+    function registerMember(address _member) public onlyOwner {
+        users.push(
+	        User({
+                addr: _member,
+		        bal: welcome,
 		        member: true
-	    })
-	);
-    _mint(address(this), welcome);
-    users[_id].bal += welcome;
+	        })
+	    );
+        _mint(address(this), welcome);
+        userId[_member] = users.length - 1;
     }
     
     function executeProposal(address beneficiary, uint256 amount, string memory reason) public payable onlyOwner {
@@ -52,7 +78,7 @@ contract Concord is ERC20, Ownable {
         emit ProposalExecuted(beneficiary, amount, reason);
     }
 
-    function claim(uint256 beneficiary, uint256 amount, string memory task) public payable onlyOwner {
+    function claimTask(uint256 beneficiary, uint256 amount, string memory task) public payable onlyOwner {
         _mint(address(this), amount);
         users[beneficiary].bal += amount;
         emit Claimed(beneficiary, amount, task);
@@ -73,13 +99,7 @@ contract Concord is ERC20, Ownable {
     }
 
     function topup(uint256 _id, address _user, uint _amount) public onlyOwner {
-        users.push(
-            User({
-                addr: _user,
-                bal: 0,
-                member: false
-            })
-        );
+        require(balanceOf(_user) > _amount, "Not enough tokens");
         users[_id].bal += _amount;
         _transfer(address(this),_user,_amount);
     }
@@ -99,20 +119,15 @@ contract Concord is ERC20, Ownable {
         payable(msg.sender).transfer(x.mul(amount));
     }
 
-    // TO DO
-    function shutDown() public payable returns (string memory) {
-        // checks if msg.sender is a member
-        // if x % of the members trigger it within a month, 
-        // distribute all ETH to token holders
-        // and revoke ownership
-        return "Game over";
-    }    
-
-    function checkBalance() public view returns (uint256) {
-        return address(this).balance;
-    }
-
     function checkTokenBalance() public view returns (uint256) {
         return balanceOf(address(this));
+    }
+
+    function getUserId(address _userAddress) public view returns(uint256) {        
+        return userId[_userAddress];
+    }
+
+    function getInContractBalance(address _userAddress) public view returns(uint256) {
+        return users[getUserId(_userAddress)].bal;
     }
 }
