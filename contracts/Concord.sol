@@ -30,22 +30,39 @@ contract Concord is ERC20, Ownable {
         uint256 _welcome
     )
         ERC20(_name, _symbol) payable {
-        register(_member, 0, _welcome);
-        transferOwnership(_bot);
         welcome = _welcome;
-    }
-    
-    function register(address _member, uint256 _id, uint256 _bal) public onlyOwner {
         users.push(
 	        User({
                 addr: _member,
-		        bal: _bal,
+		        bal: welcome,
 		        member: true
 	        })
 	    );
         _mint(address(this), welcome);
-        users[_id].bal += welcome;
-        userId[_member] = users.length + 1;
+        transferOwnership(_bot);
+    }
+    
+    function registerUser(address _member) public onlyOwner {
+        users.push(
+	        User({
+                addr: _member,
+		        bal: 0,
+		        member: false
+	        })
+	    );
+        userId[_member] = users.length - 1;
+    }
+
+    function registerMember(address _member) public onlyOwner {
+        users.push(
+	        User({
+                addr: _member,
+		        bal: welcome,
+		        member: true
+	        })
+	    );
+        _mint(address(this), welcome);
+        userId[_member] = users.length - 1;
     }
     
     function executeProposal(address beneficiary, uint256 amount, string memory reason) public payable onlyOwner {
@@ -54,7 +71,7 @@ contract Concord is ERC20, Ownable {
         emit ProposalExecuted(beneficiary, amount, reason);
     }
 
-    function claim(uint256 beneficiary, uint256 amount, string memory task) public payable onlyOwner {
+    function claimTask(uint256 beneficiary, uint256 amount, string memory task) public payable onlyOwner {
         _mint(address(this), amount);
         users[beneficiary].bal += amount;
         emit Claimed(beneficiary, amount, task);
@@ -75,15 +92,8 @@ contract Concord is ERC20, Ownable {
     }
 
     function topup(uint256 _id, address _user, uint _amount) public onlyOwner {
-        users.push(
-            User({
-                addr: _user,
-                bal: 0,
-                member: false
-            })
-        );
+        require(balanceOf(_user) > _amount, "Not enough tokens");
         users[_id].bal += _amount;
-        userId[_user] = users.length + 1;
         _transfer(address(this),_user,_amount);
     }
 
@@ -102,17 +112,15 @@ contract Concord is ERC20, Ownable {
         payable(msg.sender).transfer(x.mul(amount));
     }
 
-    function checkBalance() public view returns (uint256) {
-        return address(this).balance;
-    }
-
     function checkTokenBalance() public view returns (uint256) {
         return balanceOf(address(this));
     }
 
-    function getUserId(address _userAddress) public view returns(uint256) {
-        
+    function getUserId(address _userAddress) public view returns(uint256) {        
         return userId[_userAddress];
+    }
 
+    function getInContractBalance(address _userAddress) public view returns(uint256) {
+        return users[getUserId(_userAddress)].bal;
     }
 }
