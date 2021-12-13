@@ -14,6 +14,10 @@ contract Concord is ERC20, Ownable {
 
     uint256 public welcome;
 
+    /// @param addr user addrees
+    /// @param bal user's in-contract balance
+    /// @param member returns true when user is a member (i.e. a voting user)
+    
     struct User {
     	address addr;
 	    uint256 bal;
@@ -22,6 +26,12 @@ contract Concord is ERC20, Ownable {
     User[] public users;
     mapping(address => uint256) public userId;
     
+    /// @param _bot Discord bot's address
+    /// @param _member first member's address
+    /// @param _name name of the ERC-20 token
+    /// @param _symbol symbol of the ERC-20 token
+    /// @param _welcome amount of tokens to be transferred when registerMember() is called
+
     constructor(
         address _bot, 
         address _member,
