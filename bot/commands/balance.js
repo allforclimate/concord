@@ -13,6 +13,7 @@ exports.run = async (client, message, args, level) => {
         const authorId = message.author.id;
         if(isRegistered(authorId)) {
             const address = registeredUsers.get(authorId);
+            console.log("User's address:", address);
 
             function getInfuraProvider() {
                 const apiKey = {
@@ -30,15 +31,15 @@ exports.run = async (client, message, args, level) => {
             const abi = JSON.parse(abiFile);
             const addressRaw = fs.readFileSync('modules/concordAddress.json');
             const addr = JSON.parse(addressRaw);
-
+            console.log("contract:", addr.concord);
             const concord = new ethers.Contract(addr.concord, abi, provider);
     
-            const balanceRaw = await concord.users(0);    
-
-            let balanceRaw2 = balanceRaw.bal;
-            let balance = ethers.utils.formatEther(balanceRaw2.toString());
-            console.log("balance", balance);
-            message.reply(`You have ${balance.substring(0,20)} CC tokens in your account.`);
+            const balanceRaw = await concord.getInContractBalance(address);    
+            console.log("balanceRaw", balanceRaw);
+            let balanceRaw2 = balanceRaw.toString();
+            console.log("balance", balanceRaw2);
+            
+            message.reply(`You have ${balanceRaw2} CC tokens in your account.`);
         } else {
             message.reply(`Looks like you haven't registered your wallet address. ` +  
             `Please first register your wallet using the \`register\` command.`)

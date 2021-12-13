@@ -63,7 +63,7 @@ function App() {
   const [txBeingSent, setTxBeingSent] = useState(false);
   const [contractBalance, setContractBalance] = useState(0);
   const [userBalance, setUserBalance] = useState(0);
-  // const [userInContractBalance, setUserInContractBalance] = useState(0);
+  const [userInContractBalance, setUserInContractBalance] = useState(0);
   const [give, setGive] = useState(false);
 
   useEffect(() => {
@@ -111,7 +111,12 @@ function App() {
         const userTokenBalanceFormatted = ethers.utils.formatEther(userTokenBalance);
 
         setUserBalance(userTokenBalanceFormatted);
-        // setUserInContractBalance();
+
+        const getUserBal = await concord.getInContractBalance(account);
+        const userInContractBal = ethers.utils.formatEther(getUserBal);
+
+
+        setUserInContractBalance(userInContractBal);
         
       } catch (err) {
         console.error(err);
@@ -181,14 +186,14 @@ function App() {
         
         {userBalance > 0 &&
         <p>
-          You have {userBalance} CC tokens on your wallet.
+          You have <strong>{userBalance}</strong> CC tokens on your wallet.
         </p>
         }
-        {/* {userInContractBalance > 0 &&
+        {userInContractBalance > 0 &&
         <p>
-          Please check your account balance in Discord using the /balance command.
+          You have <strong>{userInContractBalance}</strong> CC in your Discord account.
         </p>
-        } */}
+        }
         <p><Link href="https://rinkeby.etherscan.io/address/0x8de5469C2e9ED83100121AC84Ad3884Bbf296D26" style={{ marginTop: "8px" }}>See on Etherscan</Link></p>
       </Body>
     </div>
