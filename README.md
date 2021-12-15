@@ -109,7 +109,7 @@ Local communities
 
 To make it easy for everyone, we provide a new DAO smart contract that is controlled by a Discord bot and connected to a frontend to welcome donations.
 
-Now members of the DAO can discuss project details, create and vote on proposals, claim retroacitve expanses and tip each other for their contributions all through one tool (Discord), OR we shall call it "Concord" :)
+Now members of the DAO can discuss project details, create and vote on proposals, claim retroacitve expenses and tip each other for their contributions all through one tool (Discord), OR we shall call it "Concord" :)
 
 ### Video demo
 
