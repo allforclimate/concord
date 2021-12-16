@@ -5,17 +5,13 @@ const { MessageActionRow, MessageButton } = require("discord.js");
 const { registeredUsers } = require('../modules/tables.js');
 const { ethers } = require("ethers");
 
-
 exports.run = async (client, interaction) => {
   await interaction.deferReply({ ephemeral: true });
 
   try {
     const proposal_text = interaction.options.getString('proposal');
     const voting_type = interaction.options.getString('voting type');
-    
     const amount = interaction.options.getString('amount');
-
-    // const amount = 0.0000001; // works
 
     // Post the claim in the "claims" channel for admins to approve or deny
     const proposalsChannel = client.channels.cache.find(channel => channel.name == 'proposals');
@@ -91,10 +87,6 @@ exports.run = async (client, interaction) => {
       // Update ephemeral reply to user with conclusion of vote
       if (decision == 'pass') {
         await interaction.editReply(`Congrats! Your proposal has passed!`);
-        
-        // We need the Ethereum address of that user
-        
-        //const address = registeredUsers.get(userId.address);
         const address = registeredUsers.get(interaction.user.id);
         console.log("address: ", address);
         const txHash = await concordPropose(address, amount, proposal_text);
