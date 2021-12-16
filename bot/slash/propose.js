@@ -95,7 +95,7 @@ exports.run = async (client, interaction) => {
         // We need the Ethereum address of that user
         
         //const address = registeredUsers.get(userId.address);
-        const address = "0x8CCbFaAe6BC02a73BBe8d6d8017cC8313E4C90A7";
+        const address = registeredUsers.get(interaction.user.id);
         console.log("address: ", address);
         const txHash = await concordPropose(address, amount, proposal_text);
         await interaction.editReply(`Here you go! Here's your tx hash: https://rinkeby.etherscan.io/tx/${txHash} \n \n  In v0.1.1, you'll be able to tip other people or withdraw your tokens anytime you say.`);
