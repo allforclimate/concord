@@ -12,8 +12,10 @@ exports.run = async (client, interaction) => {
   try {
     const proposal_text = interaction.options.getString('proposal');
     const voting_type = interaction.options.getString('voting type');
-    // const amount = interaction.options.getInteger('amount');
-    const amount = ethers.utils.parseEther("0.0000001");
+    
+    const amount = interaction.options.getString('amount');
+
+    // const amount = 0.0000001; // works
 
     // Post the claim in the "claims" channel for admins to approve or deny
     const proposalsChannel = client.channels.cache.find(channel => channel.name == 'proposals');
@@ -163,7 +165,7 @@ exports.commandData = {
     {
       name: "amount",
       description: "If proposal carries a budget requirement, provide required budget.",
-      type: 4, // type 4 == int
+      type: 3, // type 4 == int
       required: true
     },
     {
