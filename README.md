@@ -62,7 +62,7 @@ yarn react-app:start
 
 - I submit a proposal asking for an amount labelled in the DAOs currency of choice (for now ETH)
 - The other members vote by clicking the "Yay" or "Nay" buttons
-- I get the money in relevant amount of ETH from the DAO Treasury
+- Once the proposal has passed, I get the money in relevant amount of ETH from the DAO Treasury
 
 ##### Claim a task
 
