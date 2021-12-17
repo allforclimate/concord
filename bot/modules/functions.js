@@ -109,8 +109,24 @@ function getInfuraProvider() {
     return provider;
 }
 
-// getTokenBalance(String) returns the balance of tokens that a wallet has
-async function getTokenBalance(userAddress) {
+// Returns user's in-contract token balance (i.e. 'account balance')
+async function getAccountBalance(userAddress) {
+  userAddress = ethers.utils.getAddress(userAddress);
+    const provider = getInfuraProvider();
+    const abiFile = fs.readFileSync('modules/concordAbi.json');
+    const abi = JSON.parse(abiFile);
+    const addressFile = fs.readFileSync('modules/concordAddress.json');
+    const addr = JSON.parse(addressFile);
+    const contract = new ethers.Contract(addr.concord, abi, provider);
+    let balance = await contract.getInContractBalance(userAddress);
+    accountBalance = ethers.utils.formatEther(balance);
+    console.log("bal: ", balance);
+
+    return accountBalance;
+};
+
+// Returns user's wallet token balance
+async function getWalletBalance(userAddress) {
   userAddress = ethers.utils.getAddress(userAddress);
     const provider = getInfuraProvider();
     const abiFile = fs.readFileSync('modules/concordAbi.json');
@@ -119,10 +135,10 @@ async function getTokenBalance(userAddress) {
     const addr = JSON.parse(addressFile);
     const contract = new ethers.Contract(addr.concord, abi, provider);
     let balance = await contract.balanceOf(userAddress);
-    balance = ethers.utils.formatEther(balance);
+    walletBalance = ethers.utils.formatEther(balance);
     console.log("bal: ", balance);
 
-    return balance;
+    return walletBalance;
 };
 
 // isRegistered(String) checks it he user has registered their wallet
@@ -236,7 +252,8 @@ module.exports = {
     awaitReply, 
     toProperCase, 
     getTodayString, 
-    getTokenBalance,
+    getAccountBalance,
+    getWalletBalance,
     isRegistered,
     canVote,
     getInfuraProvider,

@@ -57,11 +57,11 @@ const init = async() => {
 
     // Load the bot with a wallet
     const ethers = require('ethers');
-    const { getInfuraProvider, getTokenBalance } = require('./modules/functions.js');
+    const { getInfuraProvider, getWalletBalance } = require('./modules/functions.js');
     const provider = getInfuraProvider();
     let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC);
     wallet = wallet.connect(provider);
-    let balance = await getTokenBalance(wallet.address);
+    let balance = await getWalletBalance(wallet.address);
     logger.log(`Bot has ${balance} CC in its wallet.`);
 
     // Here we load **commands** into memory, as a collection, so they're accessible
