@@ -186,12 +186,15 @@ async function concordClaim(address, amount, proposal) {
     const addr = JSON.parse(addressRaw);
     const concord = new ethers.Contract(addr.concord, abi, wallet);
     
-    amount = ethers.utils.parseEther(String(amount));
-    
-    // How do I get the Ethereum address of the user who submitted the proposal, please? :)
-    const myIdRaw = await concord.getUserId("0x8CCbFaAe6BC02a73BBe8d6d8017cC8313E4C90A7");
-    const call = await concord.claimTask(myIdRaw, amount, proposal);    
-    console.log("call: ", call);
+    amount = ethers.utils.parseEther(amount);
+
+    console.log("address: ", address);
+    console.log("amount: ", amount.toString());
+    console.log("proposal: ", proposal);
+
+    const id = await concord.getUserId(address);
+
+    const call = await concord.claimTask(id, amount, proposal);    
 
     // do we want to wait until the transaction is mined?
     txHash = call.hash;
