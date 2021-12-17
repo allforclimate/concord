@@ -69,7 +69,7 @@ yarn react-app:start
 - I claim a task that I performed
 - The other members vote by clicking the "Yay" or "Nay" buttons
 - I get the requested amount of tokens*
-- The claim function will launch the minting of community tokens, 
+- *The claim function will launch the minting of community tokens, the claimer will receive the requested amount of community tokens for their contributions.
 
 ##### Tip someone
 
