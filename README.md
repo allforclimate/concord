@@ -60,15 +60,16 @@ yarn react-app:start
 
 ##### Submit a proposal
 
-- I submit a proposal asking for an amount labelled in the DAOs currency of choice
+- I submit a proposal asking for an amount labelled in the DAOs currency of choice (for now ETH)
 - The other members vote by clicking the "Yay" or "Nay" buttons
-- I get the money in cash
+- I get the money in relevant amount of ETH from the DAO Treasury
 
 ##### Claim a task
 
 - I claim a task that I performed
 - The other members vote by clicking the "Yay" or "Nay" buttons
-- I get the requested amount of tokens
+- I get the requested amount of tokens*
+- The claim function will launch the minting of community tokens, 
 
 ##### Tip someone
 
