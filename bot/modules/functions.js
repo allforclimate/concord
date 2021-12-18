@@ -109,8 +109,24 @@ function getInfuraProvider() {
     return provider;
 }
 
-// getTokenBalance(String) returns the balance of tokens that a wallet has
-async function getTokenBalance(userAddress) {
+// Returns user's in-contract token balance (i.e. 'account balance')
+async function getAccountBalance(userAddress) {
+  userAddress = ethers.utils.getAddress(userAddress);
+    const provider = getInfuraProvider();
+    const abiFile = fs.readFileSync('modules/concordAbi.json');
+    const abi = JSON.parse(abiFile);
+    const addressFile = fs.readFileSync('modules/concordAddress.json');
+    const addr = JSON.parse(addressFile);
+    const contract = new ethers.Contract(addr.concord, abi, provider);
+    let balance = await contract.getInContractBalance(userAddress);
+    accountBalance = ethers.utils.formatEther(balance);
+    console.log("bal: ", balance);
+
+    return accountBalance;
+};
+
+// Returns user's wallet token balance
+async function getWalletBalance(userAddress) {
   userAddress = ethers.utils.getAddress(userAddress);
     const provider = getInfuraProvider();
     const abiFile = fs.readFileSync('modules/concordAbi.json');
@@ -119,10 +135,10 @@ async function getTokenBalance(userAddress) {
     const addr = JSON.parse(addressFile);
     const contract = new ethers.Contract(addr.concord, abi, provider);
     let balance = await contract.balanceOf(userAddress);
-    balance = ethers.utils.formatEther(balance);
+    walletBalance = ethers.utils.formatEther(balance);
     console.log("bal: ", balance);
 
-    return balance;
+    return walletBalance;
 };
 
 // isRegistered(String) checks it he user has registered their wallet
@@ -155,6 +171,7 @@ function submitProposal(proposalId, outcome) {
     return false;
 }
 
+// triggers claim() 
 async function concordClaim(address, amount, proposal) {
   try {
     // load wallet and provider
@@ -169,12 +186,43 @@ async function concordClaim(address, amount, proposal) {
     const addr = JSON.parse(addressRaw);
     const concord = new ethers.Contract(addr.concord, abi, wallet);
     
-    amount = ethers.utils.parseEther(String(amount));
-    
-    // How do I get the Ethereum address of the user who submitted the proposal, please? :)
-    const myIdRaw = await concord.getUserId("0x8CCbFaAe6BC02a73BBe8d6d8017cC8313E4C90A7");
-    const call = await concord.claimTask(myIdRaw, amount, proposal);    
-    console.log("call: ", call);
+    amount = ethers.utils.parseEther(amount);
+
+    console.log("address: ", address);
+    console.log("amount: ", amount.toString());
+    console.log("proposal: ", proposal);
+
+    const id = await concord.getUserId(address);
+
+    const call = await concord.claimTask(id, amount, proposal);    
+
+    // do we want to wait until the transaction is mined?
+    txHash = call.hash;
+    console.log("txHash: ", txHash);
+    return txHash
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+// triggers executeProposal() 
+async function concordPropose(address, amount, proposal) {
+  try {
+    // load wallet and provider
+    let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC); 
+    const provider = getInfuraProvider();
+    wallet = wallet.connect(provider);   
+
+    // load contract
+    const abiFile = fs.readFileSync('modules/concordAbi.json');
+    const abi = JSON.parse(abiFile);
+    const addressRaw = fs.readFileSync('modules/concordAddress.json');
+    const addr = JSON.parse(addressRaw);
+    const concord = new ethers.Contract(addr.concord, abi, wallet);
+
+    amount = ethers.utils.parseEther(amount);
+    const call = await concord.executeProposal(address, amount, proposal);    
 
     // do we want to wait until the transaction is mined?
     txHash = call.hash;
@@ -207,10 +255,12 @@ module.exports = {
     awaitReply, 
     toProperCase, 
     getTodayString, 
-    getTokenBalance,
+    getAccountBalance,
+    getWalletBalance,
     isRegistered,
     canVote,
     getInfuraProvider,
     submitProposal,
-    concordClaim
+    concordClaim, 
+    concordPropose
 };
