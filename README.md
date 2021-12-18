@@ -4,7 +4,7 @@ A new form of DAO.
 
 ## Motivation
 
-The idea is to give citizens an easy way to create a DAO for their neighborhood. So that they can start rebuilding local resilience, reclaim empty spaces, manage commons, organize. 
+The idea is to give citizens an easy way to create a DAO for their neighborhood. So that they can start rebuilding local resilience, reclaim empty spaces, manage commons, and organize events. 
 
 The project is documented in [this Wiki](https://github.com/AllForClimate/concord/wiki).
 
