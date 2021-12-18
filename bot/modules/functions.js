@@ -120,7 +120,7 @@ async function getAccountBalance(userAddress) {
     const contract = new ethers.Contract(addr.concord, abi, provider);
     let balance = await contract.getInContractBalance(userAddress);
     accountBalance = ethers.utils.formatEther(balance);
-    console.log("bal: ", balance);
+    console.log("bal: ", balance.toString());
 
     return accountBalance;
 };
@@ -136,7 +136,7 @@ async function getWalletBalance(userAddress) {
     const contract = new ethers.Contract(addr.concord, abi, provider);
     let balance = await contract.balanceOf(userAddress);
     walletBalance = ethers.utils.formatEther(balance);
-    console.log("bal: ", balance);
+    console.log("bal: ", balance.toString());
 
     return walletBalance;
 };
@@ -234,6 +234,43 @@ async function concordPropose(address, amount, proposal) {
   }
 };
 
+async function concordTip(from, to, amount) {
+  try {
+
+    console.log("Hello!");
+    // load wallet and provider
+    let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC); 
+    const provider = getInfuraProvider();
+    wallet = wallet.connect(provider);   
+
+    // load contract
+    const abiFile = fs.readFileSync('modules/concordAbi.json');
+    const abi = JSON.parse(abiFile);
+    const addressRaw = fs.readFileSync('modules/concordAddress.json');
+    const addr = JSON.parse(addressRaw);
+    const concord = new ethers.Contract(addr.concord, abi, wallet);
+
+    amount = ethers.utils.parseEther(amount);
+
+    const senderId = await concord.getUserId(from);
+    const recipientId = await concord.getUserId(to);
+
+    console.log("from: ", senderId);
+    console.log("to: ", to);
+    console.log("amount: ", amount.toString());
+    
+    const call = await concord.tip(senderId, recipientId, amount);    
+
+    // do we want to wait until the transaction is mined?
+    txHash = call.hash;
+    console.log("txHash: ", txHash);
+    return txHash
+
+  } catch (err) {
+    console.error(err);
+  }
+};
+
 // These 2 process methods will catch exceptions and give *more details* about the error and stack trace.
 process.on("uncaughtException", (err) => {
   const errorMsg = err.stack.replace(new RegExp(`${__dirname}/`, "g"), "./");
@@ -262,5 +299,6 @@ module.exports = {
     getInfuraProvider,
     submitProposal,
     concordClaim, 
-    concordPropose
+    concordPropose, 
+    concordTip
 };
