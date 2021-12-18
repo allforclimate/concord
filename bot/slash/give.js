@@ -1,70 +1,27 @@
-const { getTodayString } = require('../modules/functions.js');
-const { transactions, balances } = require('../modules/tables.js');
+const { concordTip } = require('../modules/functions.js');
+const { registeredUsers } = require('../modules/tables.js');
 
 exports.run = async (client, interaction) => { // eslint-disable-line no-unused-vars
   await interaction.deferReply({ ephemeral: true });
 
+  console.log("Hello!");
+
   // Get arguments provided by user to command
-  const amount = interaction.options.getInteger('amount');
+  const amountRaw = interaction.options.getInteger('amount');
+  const amount = amountRaw.toString();
   const recipient = interaction.options.getUser('to');
   const author = interaction.user;
-  const recipientId = recipient.id;
+  const to = recipient.id;
   const recipientName = recipient.username;
-  const authorId = author.id;
+  const from = author.id;
   const authorName = author.username;
 
-  // Make sure user has enough tokens to award
-  if (balances.ensure(authorId, 0) < amount) {
-      await interaction.editReply(`Sorry ${authorName}, you don't have that many tokens!`);
-  } else {
-      // Update balances for both sender and recipient
-      let senderBalance = balances.get(authorId);
-      let recipientBalance = balances.ensure(recipientId, 0);
+  const recipientAddress = registeredUsers.get(from);
+  const senderAddress = registeredUsers.get(to);
 
-      senderBalance = senderBalance - amount;
-      recipientBalance = recipientBalance + amount;
+  await concordTip(senderAddress,recipientAddress,amount);
+  await interaction.editReply(`Hey! Thank you ${authorName}! You just sent ${amount} CC to ${recipientName}: https://rinkeby.etherscan.io/tx/${txHash} \n \n `);
 
-      balances.set(authorId, senderBalance);
-      balances.set(recipientId, recipientBalance);
-
-      // Update transactions DB
-      const key = getTodayString();
-
-      if (transactions.has(key)) {
-        let today_transactions = transactions.get(key);
-        const numeric_indexes = Array.from(Object.keys(today_transactions)).map((num) => Number(num));
-        // get largest existing proposal ID for today's date
-        const current_count = Math.max(...numeric_indexes);
-        let counter = current_count + 1;
-        transaction_record = {
-          [counter]: {
-            'amount': amount,
-            'senderId': authorId,
-            'senderName': authorName,
-            'recipientId': recipientId,
-            'recipientName': recipientName
-          }
-        };
-        today_transactions = Object.assign(today_transactions, transaction_record);
-        transactions.set(key, today_transactions);
-      } else {
-        today_transactions = {
-          0: {
-            'amount': amount,
-            'senderId': authorId,
-            'senderName': authorName,
-            'recipientId': recipientId,
-            'recipientName': recipientName
-          }
-        };
-        transactions.set(key, today_transactions);
-      }
-      console.log(transactions);
-      console.log(balances);
-
-      // Update interaction to inform users of successful request
-      await interaction.editReply(`${author} awarded ${amount} CC to ${recipient}`)
-  };
 };
 
 exports.commandData = {
