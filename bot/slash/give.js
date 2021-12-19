@@ -20,7 +20,7 @@ exports.run = async (client, interaction) => { // eslint-disable-line no-unused-
   const senderAddress = registeredUsers.get(from);
 
   await concordTip(senderAddress,recipientAddress,amount);
-  await interaction.editReply(`@${authorName} just sent ${amount} CC to @${recipientName}: https://rinkeby.etherscan.io/tx/${txHash} \n \n `);
+  await interaction.editReply(`${authorName} just sent ${amount} CC to ${recipientName}: https://rinkeby.etherscan.io/tx/${txHash}`);
 
 };
 
