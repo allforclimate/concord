@@ -6,7 +6,7 @@ const { registeredUsers } = require('../modules/tables.js');
 const { ethers } = require("ethers");
 
 exports.run = async (client, interaction) => {
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply();
 
   try {
     const proposal_text = interaction.options.getString('proposal');
@@ -27,7 +27,7 @@ exports.run = async (client, interaction) => {
         .setStyle('DANGER')
       ])
     
-    const proposal_message_content = `${interaction.user.username} has made the following proposal: \n ${proposal_text}`;
+    const proposal_message_content = `${interaction.user.username} has requested ${amount} ETH for ${proposal_text}`;
     const proposalMessage = await proposalsChannel.send({
       content: proposal_message_content,
       components: [buttons]});
@@ -90,7 +90,7 @@ exports.run = async (client, interaction) => {
         const address = registeredUsers.get(interaction.user.id);
         console.log("address: ", address);
         const txHash = await concordPropose(address, amount, proposal_text);
-        await interaction.editReply(`Here you go! Here's your tx hash: https://rinkeby.etherscan.io/tx/${txHash} \n \n  In v0.1.1, you'll be able to tip other people or withdraw your tokens anytime you say.`);
+        await interaction.editReply(`${interaction.user.username} has received ${amount} ETH from the treasury: https://rinkeby.etherscan.io/tx/${txHash}`);
       } else if (decision == 'fail') {
         await interaction.editReply(`Sorry, looks like the community doesn't agree with your proposal.`)
       } else {
