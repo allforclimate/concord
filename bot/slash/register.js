@@ -12,7 +12,7 @@ exports.run = async (client, interaction) => { // eslint-disable-line no-unused-
     registeredUsers.set(userId, address);
 
     const txHash = await concordRegisterMember(address);
-    interaction.editReply(`Congrats ${interaction.user.username}! As a new member, you just received 20 CC tokens: https://rinkeby.etherscan.io/tx/${txHash} \n \n Welcome to Concord!`)
+    interaction.editReply(`Congrats ${interaction.user.username}! As a new member, you just received 20 CC: https://rinkeby.etherscan.io/tx/${txHash} \n \n Welcome to Concord!`)
     // interaction.editReply({content: `Thanks!`, ephemeral: true})
       .then(() => console.log('Replied successfully.'))
       .catch(console.error);
