@@ -73,11 +73,11 @@ describe("Interactions", function () {
   it("Francis wants to ragequit", async function () {
     await concord.executeProposal(bob.address, ethers.utils.parseEther("1.99"), "Pay my lawyer");
     await ethers.provider.getBalance(concord.address);
-    const amountToCashOutRaw = 100;
+    const amountToCashOutRaw = 1;
     const amountToCashOut = amountToCashOutRaw.toString();
     await concord.connect(francis).rageQuit(ethers.utils.parseEther(amountToCashOut));
     const bal2 = await ethers.provider.getBalance(concord.address);
-    expect(await ethers.provider.getBalance(concord.address)).to.equal(ethers.utils.parseEther("1527.625625000000000000"));
+    expect(await ethers.provider.getBalance(concord.address)).to.equal(ethers.utils.parseEther("1598.326370243693886277"));
   });
 
   it("Frontend gets users' ID", async function () {

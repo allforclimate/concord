@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "prb-math/contracts/PRBMathUD60x18.sol";
 
-contract Concord is ERC20, Ownable {
+contract Concord is ERC20, Ownable {    
 
     using PRBMathUD60x18 for uint256;
     
@@ -101,7 +101,7 @@ contract Concord is ERC20, Ownable {
     function topup(uint256 _id, address _user, uint _amount) public onlyOwner {
         require(balanceOf(_user) > _amount, "Not enough tokens");
         users[_id].bal += _amount;
-        _transfer(address(this),_user,_amount);
+        _transfer(_user,address(this),_amount);
     }
 
     function withdraw(uint256 _id, uint256 _amount) public payable onlyOwner {

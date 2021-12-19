@@ -9,20 +9,20 @@ exports.majorityVote = async (yes_votes, no_votes, proposalMessage, proposal_tex
     if (yes_vote_count > no_vote_count) {
       decision = 'pass';
       await proposalMessage.edit({
-        content: `Proposal: "${proposal_text}" has passed with ${yes_vote_count} in favor and ${no_vote_count} against.`,
+        content: `Proposal "${proposal_text}" has passed with ${yes_vote_count} in favor and ${no_vote_count} against.`,
         components: []
       });
     } else {
       decision = 'fail';
       await proposalMessage.edit({
-        content: `Proposal: "${proposal_text}" has failed with ${yes_vote_count} in favor and ${no_vote_count} against.`,
+        content: `Proposal "${proposal_text}" has failed with ${yes_vote_count} in favor and ${no_vote_count} against.`,
         components: []
       });
     }
   } else {
     decision = 'tie';
     await proposalMessage.edit({
-      content: `Proposal: "${proposal_text}" has failed with ${yes_vote_count} in favor and ${no_vote_count} against.`,
+      content: `Proposal "${proposal_text}" has failed with ${yes_vote_count} in favor and ${no_vote_count} against.`,
       components: []
     });
   }

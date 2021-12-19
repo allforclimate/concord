@@ -5,7 +5,7 @@ const { MessageActionRow, MessageButton } = require("discord.js");
 const { registeredUsers } = require('../modules/tables.js');
 
 exports.run = async (client, interaction) => {
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply();
 
   try {
     const proposal_text = interaction.options.getString('proposal');
@@ -26,14 +26,14 @@ exports.run = async (client, interaction) => {
         .setStyle('DANGER')
       ])
     
-    const proposal_message_content = `${interaction.user.username} has made the following proposal: \n ${proposal_text}`;
+    const proposal_message_content = `${interaction.user.username} has claimed ${amount} CC for ${proposal_text}`;
     const proposalMessage = await claimChannel.send({
       content: proposal_message_content,
       components: [buttons]});
 
     // only register votes roles above a certain level
-    const roleFilter = i => permlevel(i) >= 3;
-    const collector = proposalMessage.createMessageComponentCollector({ filter: roleFilter, time: 1*1000*10 });
+    const roleFilter = i => permlevel(i) >= 0;
+    const collector = proposalMessage.createMessageComponentCollector({ filter: roleFilter, time: 1*1000*30 });
 
     // Keep record of votes so users can change their vote
     let yes_votes = new Set;
@@ -89,9 +89,9 @@ exports.run = async (client, interaction) => {
         const address = registeredUsers.get(interaction.user.id);
         console.log("address: ", address);
         const txHash = await concordClaim(address, amount, proposal_text);
-        await interaction.editReply(`Here you go! Here's your tx hash: https://rinkeby.etherscan.io/tx/${txHash} \n \n  In v0.1.1, you'll be able to tip other people or withdraw your tokens anytime you say.`);
+        await interaction.editReply(`${interaction.user.username} has received ${amount} CC: https://rinkeby.etherscan.io/tx/${txHash}`);
       } else if (decision == 'fail') {
-        await interaction.editReply(`Sorry, looks like the community doesn't agree with your proposal.`)
+        await interaction.editReply(`Sorry, looks like the community doesn't agree with your claim.`)
       } else {
         await interaction.editReply(`Sorry, looks like the proposal ended in a tie.`)
       }
