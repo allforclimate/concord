@@ -33,8 +33,8 @@ exports.run = async (client, interaction) => {
       components: [buttons]});
 
     // only register votes roles above a certain level
-    const roleFilter = i => permlevel(i) >= 3;
-    const collector = proposalMessage.createMessageComponentCollector({ filter: roleFilter, time: 1*1000*10 });
+    const roleFilter = i => permlevel(i) >= 0;
+    const collector = proposalMessage.createMessageComponentCollector({ filter: roleFilter, time: 1*1000*30 });
 
     // Keep record of votes so users can change their vote
     let yes_votes = new Set;

@@ -2,7 +2,7 @@ const { concordTip } = require('../modules/functions.js');
 const { registeredUsers } = require('../modules/tables.js');
 
 exports.run = async (client, interaction) => { // eslint-disable-line no-unused-vars
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply();
 
   console.log("Hello!");
 
@@ -16,8 +16,8 @@ exports.run = async (client, interaction) => { // eslint-disable-line no-unused-
   const from = author.id;
   const authorName = author.username;
 
-  const recipientAddress = registeredUsers.get(from);
-  const senderAddress = registeredUsers.get(to);
+  const recipientAddress = registeredUsers.get(to);
+  const senderAddress = registeredUsers.get(from);
 
   await concordTip(senderAddress,recipientAddress,amount);
   await interaction.editReply(`Hey! Thank you ${authorName}! You just sent ${amount} CC to ${recipientName}: https://rinkeby.etherscan.io/tx/${txHash} \n \n `);

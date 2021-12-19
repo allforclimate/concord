@@ -1,5 +1,6 @@
 const ethers = require('ethers');
 const { registeredUsers } = require('../modules/tables.js');
+const { concordRegisterMember } = require('../modules/functions.js');
 
 exports.run = async (client, interaction) => { // eslint-disable-line no-unused-vars
   await interaction.deferReply({ ephemeral: true });
@@ -9,6 +10,10 @@ exports.run = async (client, interaction) => { // eslint-disable-line no-unused-
 
   if (ethers.utils.isAddress(address)) {
     registeredUsers.set(userId, address);
+
+
+
+    await concordRegisterMember(address);
     // interaction.editReply({content: `Thanks for registering ${author}`, ephemeral: true})
     interaction.editReply({content: `Thanks!`, ephemeral: true})
       .then(() => console.log('Replied successfully.'))
