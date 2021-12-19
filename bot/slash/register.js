@@ -3,7 +3,7 @@ const { registeredUsers } = require('../modules/tables.js');
 const { concordRegisterMember } = require('../modules/functions.js');
 
 exports.run = async (client, interaction) => { // eslint-disable-line no-unused-vars
-  await interaction.deferReply({ ephemeral: true });
+  await interaction.deferReply();
   const address = interaction.options.getString('address');
   const userId = interaction.user.id;
   console.log(`address passed: ${address}`);
@@ -11,11 +11,9 @@ exports.run = async (client, interaction) => { // eslint-disable-line no-unused-
   if (ethers.utils.isAddress(address)) {
     registeredUsers.set(userId, address);
 
-
-
-    await concordRegisterMember(address);
-    // interaction.editReply({content: `Thanks for registering ${author}`, ephemeral: true})
-    interaction.editReply({content: `Thanks!`, ephemeral: true})
+    const txHash = await concordRegisterMember(address);
+    interaction.editReply(`Congrats ${interaction.user.username}! As a new member, you just received 20 CC tokens: https://rinkeby.etherscan.io/tx/${txHash} \n \n Welcome to Concord!`)
+    // interaction.editReply({content: `Thanks!`, ephemeral: true})
       .then(() => console.log('Replied successfully.'))
       .catch(console.error);
   } else {
