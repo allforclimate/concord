@@ -182,7 +182,7 @@ function submitProposal(proposalId, outcome) {
 }
 
 async function isMember(address) {
-  // address = "0x961fF506d6516633056c57315bE10a12fa449Ebc";
+  //address = "0x961fF506d6516633056c57315bE10a12fa449Ebc";
   const concord = await loadContract();
   const call = await concord.getUserId(address);
 
