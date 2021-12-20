@@ -78,7 +78,6 @@ async function awaitReply(msg, question, limit = 60000) {
   }
 }
 
-
 /* MISCELLANEOUS NON-CRITICAL FUNCTIONS */
   
 // toProperCase(String) returns a proper-cased string such as: 
@@ -98,6 +97,23 @@ function getTodayString() {
   return yyyy + mm + dd;
 };
 
+async function loadContract() {
+
+  // load wallet and provider
+  let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC); 
+  const provider = getInfuraProvider();
+  wallet = wallet.connect(provider);   
+
+  // load contract
+  const abiFile = fs.readFileSync('modules/concordAbi.json');
+  const abi = JSON.parse(abiFile);
+  const addressRaw = fs.readFileSync('modules/concordAddress.json');
+  const addr = JSON.parse(addressRaw);
+  const concord = new ethers.Contract(addr.concord, abi, wallet);
+
+  return concord;
+}
+    
 // getInfuraProvider() returns a ethers.Provider object connected to Infura using the
 // API key stored in the environment variable
 function getInfuraProvider() {
@@ -111,34 +127,28 @@ function getInfuraProvider() {
 
 // Returns user's in-contract token balance (i.e. 'account balance')
 async function getAccountBalance(userAddress) {
+  
+  const concord = await loadContract();
   userAddress = ethers.utils.getAddress(userAddress);
-    const provider = getInfuraProvider();
-    const abiFile = fs.readFileSync('modules/concordAbi.json');
-    const abi = JSON.parse(abiFile);
-    const addressFile = fs.readFileSync('modules/concordAddress.json');
-    const addr = JSON.parse(addressFile);
-    const contract = new ethers.Contract(addr.concord, abi, provider);
-    let balance = await contract.getInContractBalance(userAddress);
-    accountBalance = ethers.utils.formatEther(balance);
-    console.log("bal: ", balance.toString());
 
-    return accountBalance;
+  let balance = await concord.getInContractBalance(userAddress);
+  accountBalance = ethers.utils.formatEther(balance);
+  console.log("bal: ", balance.toString());
+
+  return accountBalance;
+
 };
 
 // Returns user's wallet token balance
 async function getWalletBalance(userAddress) {
+  
+  const concord = await loadContract();
   userAddress = ethers.utils.getAddress(userAddress);
-    const provider = getInfuraProvider();
-    const abiFile = fs.readFileSync('modules/concordAbi.json');
-    const abi = JSON.parse(abiFile);
-    const addressFile = fs.readFileSync('modules/concordAddress.json');
-    const addr = JSON.parse(addressFile);
-    const contract = new ethers.Contract(addr.concord, abi, provider);
-    let balance = await contract.balanceOf(userAddress);
-    walletBalance = ethers.utils.formatEther(balance);
-    console.log("bal: ", balance.toString());
+  let balance = await concord.balanceOf(userAddress);
+  walletBalance = ethers.utils.formatEther(balance);
+  console.log("bal: ", balance.toString());
 
-    return walletBalance;
+  return walletBalance;
 };
 
 // isRegistered(String) checks it he user has registered their wallet
@@ -171,21 +181,52 @@ function submitProposal(proposalId, outcome) {
     return false;
 }
 
-// triggers claim() 
-async function concordClaim(address, amount, proposal) {
+async function isMember(address) {
+  //address = "0x961fF506d6516633056c57315bE10a12fa449Ebc";
+  const concord = await loadContract();
+  const call = await concord.getUserId(address);
+
+  if (call == 0) {
+    return false;
+  } else {
+    return true;
+  }
+
+}
+
+async function isRegisteredUser(userId) {
+  
+  // returns true if user ID is not 0
+  
+}
+
+async function getContractBalance() {
+  
   try {
+
     // load wallet and provider
     let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC); 
     const provider = getInfuraProvider();
     wallet = wallet.connect(provider);   
 
-    // load contract
-    const abiFile = fs.readFileSync('modules/concordAbi.json');
-    const abi = JSON.parse(abiFile);
     const addressRaw = fs.readFileSync('modules/concordAddress.json');
     const addr = JSON.parse(addressRaw);
-    const concord = new ethers.Contract(addr.concord, abi, wallet);
-    
+
+    const constractBalanceRaw = await provider.getBalance(addr.concord);
+    const constractBalance = constractBalanceRaw.toString();
+    console.log("constractBalance: ", constractBalance);
+    return constractBalance;
+
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+// triggers claim() 
+async function concordClaim(address, amount, proposal) {
+  try {
+    const concord = await loadContract();
+
     amount = ethers.utils.parseEther(amount);
 
     console.log("address: ", address);
@@ -209,17 +250,7 @@ async function concordClaim(address, amount, proposal) {
 // triggers executeProposal() 
 async function concordPropose(address, amount, proposal) {
   try {
-    // load wallet and provider
-    let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC); 
-    const provider = getInfuraProvider();
-    wallet = wallet.connect(provider);   
-
-    // load contract
-    const abiFile = fs.readFileSync('modules/concordAbi.json');
-    const abi = JSON.parse(abiFile);
-    const addressRaw = fs.readFileSync('modules/concordAddress.json');
-    const addr = JSON.parse(addressRaw);
-    const concord = new ethers.Contract(addr.concord, abi, wallet);
+    const concord = await loadContract();
 
     amount = ethers.utils.parseEther(amount);
     const call = await concord.executeProposal(address, amount, proposal);    
@@ -237,18 +268,7 @@ async function concordPropose(address, amount, proposal) {
 async function concordTip(from, to, amount) {
   try {
 
-    console.log("Hello!");
-    // load wallet and provider
-    let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC); 
-    const provider = getInfuraProvider();
-    wallet = wallet.connect(provider);   
-
-    // load contract
-    const abiFile = fs.readFileSync('modules/concordAbi.json');
-    const abi = JSON.parse(abiFile);
-    const addressRaw = fs.readFileSync('modules/concordAddress.json');
-    const addr = JSON.parse(addressRaw);
-    const concord = new ethers.Contract(addr.concord, abi, wallet);
+    const concord = await loadContract();
 
     amount = ethers.utils.parseEther(amount);
 
@@ -274,17 +294,7 @@ async function concordTip(from, to, amount) {
 async function concordWithdraw(to, amount) {
   try {
 
-    // load wallet and provider
-    let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC); 
-    const provider = getInfuraProvider();
-    wallet = wallet.connect(provider);   
-
-    // load contract
-    const abiFile = fs.readFileSync('modules/concordAbi.json');
-    const abi = JSON.parse(abiFile);
-    const addressRaw = fs.readFileSync('modules/concordAddress.json');
-    const addr = JSON.parse(addressRaw);
-    const concord = new ethers.Contract(addr.concord, abi, wallet);
+    const concord = await loadContract();
 
     amount = ethers.utils.parseEther(amount);
     const recipientId = await concord.getUserId(to);
@@ -307,17 +317,7 @@ async function concordWithdraw(to, amount) {
 async function concordTopup(to, amount) {
   try {
 
-    // load wallet and provider
-    let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC); 
-    const provider = getInfuraProvider();
-    wallet = wallet.connect(provider);   
-
-    // load contract
-    const abiFile = fs.readFileSync('modules/concordAbi.json');
-    const abi = JSON.parse(abiFile);
-    const addressRaw = fs.readFileSync('modules/concordAddress.json');
-    const addr = JSON.parse(addressRaw);
-    const concord = new ethers.Contract(addr.concord, abi, wallet);
+    const concord = await loadContract();
 
     amount = ethers.utils.parseEther(amount);
     const recipientId = await concord.getUserId(to);
@@ -340,24 +340,8 @@ async function concordTopup(to, amount) {
 async function concordRegisterMember(address) {
   try {
 
-    // load wallet and provider
-    let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC); 
-    const provider = getInfuraProvider();
-    wallet = wallet.connect(provider);   
+    const concord = await loadContract();
 
-    // load contract
-    const abiFile = fs.readFileSync('modules/concordAbi.json');
-    const abi = JSON.parse(abiFile);
-    const addressRaw = fs.readFileSync('modules/concordAddress.json');
-    const addr = JSON.parse(addressRaw);
-    const concord = new ethers.Contract(addr.concord, abi, wallet);
-
-    // amount = ethers.utils.parseEther(amount);
-    // const recipientId = await concord.getUserId(to);
-
-    // console.log("to: ", to);
-    // console.log("amount: ", amount.toString());
-    
     const call = await concord.registerMember(address);    
 
     // do we want to wait until the transaction is mined?
@@ -390,6 +374,7 @@ module.exports = {
     permlevel, 
     awaitReply, 
     toProperCase, 
+    loadContract,
     getTodayString, 
     getAccountBalance,
     getWalletBalance,
@@ -402,5 +387,7 @@ module.exports = {
     concordTip,
     concordWithdraw,
     concordTopup, 
-    concordRegisterMember
+    concordRegisterMember,
+    getContractBalance,
+    isMember
 };

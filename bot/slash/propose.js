@@ -1,5 +1,5 @@
 const { proposals } = require('../modules/tables.js');
-const { getTodayString, permlevel, concordPropose } = require('../modules/functions.js');
+const { getTodayString, permlevel, concordPropose, getContractBalance, isMember } = require('../modules/functions.js');
 const { majorityVote } = require('../modules/voting.js');
 const { MessageActionRow, MessageButton } = require("discord.js");
 const { registeredUsers } = require('../modules/tables.js');
@@ -9,11 +9,19 @@ exports.run = async (client, interaction) => {
   await interaction.deferReply();
 
   try {
+
+    const cBal = await getContractBalance();
+
     const proposal_text = interaction.options.getString('proposal');
     const voting_type = interaction.options.getString('voting type');
     const amount = interaction.options.getString('amount');
 
-    // Post the claim in the "claims" channel for admins to approve or deny
+    console.log("cBal: ", ethers.utils.formatEther(cBal));
+    console.log("amount: ", amount);
+
+    if (amount <= ethers.utils.formatEther(cBal)) {
+
+      // Post the claim in the "claims" channel for admins to approve or deny
     const proposalsChannel = client.channels.cache.find(channel => channel.name == 'proposals');
     const buttons = new MessageActionRow()
       .addComponents([
@@ -35,6 +43,9 @@ exports.run = async (client, interaction) => {
     // only register votes roles above a certain level
     const roleFilter = i => permlevel(i) >= 0;
     const collector = proposalMessage.createMessageComponentCollector({ filter: roleFilter, time: 1*1000*30 });
+
+    // only register votes if isMember is true
+    // isMember()
 
     // Keep record of votes so users can change their vote
     let yes_votes = new Set;
@@ -137,8 +148,12 @@ exports.run = async (client, interaction) => {
         };
       }
       proposals.set(key, today_proposals);
-      console.log(proposals);
+      // console.log(proposals);
     });
+      
+    } else {
+      await interaction.editReply(`Sorry, the community can't afford your proposal. We only have ${ethers.utils.formatEther(cBal)} ETH to spend.`)
+    }
   } catch (error) {
       console.log(error);
   }

@@ -28,7 +28,6 @@ contract Concord is ERC20, Ownable {
     /// @param _name Name of the ERC-20 token
     /// @param _symbol Symbol of the ERC-20 token
     /// @param _welcome Amount of tokens to transfer to a newly registerd member
-
     constructor(
         address _bot, 
         address _member,
@@ -49,17 +48,21 @@ contract Concord is ERC20, Ownable {
         transferOwnership(_bot);
     }
     
-    function registerUser(address _member) public onlyOwner {
+    /// @dev Registers a non-voting user 
+    /// @param _user New user's address
+    function registerUser(address _user) public onlyOwner {
         users.push(
 	        User({
-                addr: _member,
+                addr: _user,
 		        bal: 0,
 		        member: false
 	        })
 	    );
-        userId[_member] = users.length - 1;
+        userId[_user] = users.length - 1;
     }
 
+    /// @dev Registers a member (i.e. a voting user) 
+    /// @param _member New member's address
     function registerMember(address _member) public onlyOwner {
         users.push(
 	        User({
@@ -72,62 +75,97 @@ contract Concord is ERC20, Ownable {
         userId[_member] = users.length - 1;
     }
     
-    function executeProposal(address beneficiary, uint256 amount, string memory reason) public payable onlyOwner {
-        require(address(this).balance > amount, "Insuficient funds");        
-        payable(beneficiary).transfer(amount);
-        emit ProposalExecuted(beneficiary, amount, reason);
+    /// @notice Sends funds from the contract to the beneficiary
+    /// @dev This function can only be triggered by the Discord bot
+    /// @param _beneficiary The recipient address
+    /// @param _amount Amount of ETH to send from the treasury to the beneficiary
+    /// @param _reason Jusification for this expanse
+    function executeProposal(address _beneficiary, uint256 _amount, string memory _reason) public payable onlyOwner {
+        require(address(this).balance > _amount, "Insuficient funds");        
+        payable(_beneficiary).transfer(_amount);
+        emit ProposalExecuted(_beneficiary, _amount, _reason);
     }
 
-    function claimTask(uint256 beneficiary, uint256 amount, string memory task) public payable onlyOwner {
-        _mint(address(this), amount);
-        users[beneficiary].bal += amount;
-        emit Claimed(beneficiary, amount, task);
+    /// @notice Mints fresh tokens and credit the member's account 
+    /// @dev This function can only be triggered by the Discord bot
+    /// @param _beneficiary The account to credit
+    /// @param _amount Amount of tokens to send from the treasury to the beneficiary
+    /// @param _task Jusification for this expanse
+    function claimTask(uint256 _beneficiary, uint256 _amount, string memory _task) public payable onlyOwner {
+        _mint(address(this), _amount);
+        users[_beneficiary].bal += _amount;
+        emit Claimed(_beneficiary, _amount, _task);
     }
 
+    /// @notice Triggers the give() function when funds are directly sent to the contract 
     receive() external payable {
         give();
     }
 
+    /// @notice Mints and transfers fresh tokens to caller
     function give() public payable {
         _mint(msg.sender, msg.value);
     }
 
-    function tip(uint256 tipper, uint256 recipient, uint256 amount) public onlyOwner {
-        require(users[tipper].bal > amount, "Can't tip");
-        users[tipper].bal = users[tipper].bal - amount;
-        users[recipient].bal = users[recipient].bal + amount;
+    /// @notice transfers amount from sender to recipient in non-withdrawn funds 
+    /// @dev This function can only be triggered by the Discord bot
+    /// @param _sender The account to debit
+    /// @param _recipient The account to credit
+    /// @param _amount The of the tip
+    function tip(uint256 _sender, uint256 _recipient, uint256 _amount) public onlyOwner {
+        require(users[_sender].bal > _amount, "Can't tip");
+        users[_sender].bal = users[_sender].bal - _amount;
+        users[_recipient].bal = users[_recipient].bal + _amount;
     }
 
+    /// @notice Transfers tokens from user to contract and credit his user account 
+    /// @dev This function can only be triggered by the Discord bot
+    /// @param _id Account ID
+    /// @param _user User address
+    /// @param _amount Amount to credit
     function topup(uint256 _id, address _user, uint _amount) public onlyOwner {
         require(balanceOf(_user) > _amount, "Not enough tokens");
         users[_id].bal += _amount;
         _transfer(_user,address(this),_amount);
     }
 
+    /// @notice Transfers tokens from contract to user and debit user account
+    /// @dev This function can only be triggered by the Discord bot
+    /// @param _id Account ID
+    /// @param _amount Amount to debit
     function withdraw(uint256 _id, uint256 _amount) public payable onlyOwner {
         require(users[_id].bal > _amount, "Not enough tokens");
         users[_id].bal -= _amount;
         _transfer(address(this),users[_id].addr,_amount);
     }
 
-    function rageQuit(uint amount) public payable {
-        require(balanceOf(msg.sender) >= amount, "Too high");
-        _burn(msg.sender, amount);
+    /// @notice Transfers ETH from contract to caller
+    /// @notice Calculation details: https://github.com/AllForClimate/concord/wiki#cashing-out 
+    /// @dev This function can be called from the frontend
+    /// @param _amount Amount of tokens sent by user
+    function rageQuit(uint _amount) public payable {
+        require(balanceOf(msg.sender) >= _amount, "Too high");
+        _burn(msg.sender, _amount);
         uint256 ethBal = address(this).balance;
         uint256 supply = totalSupply();
         uint256 x = ethBal.div(supply);        
-        payable(msg.sender).transfer(x.mul(amount));
+        payable(msg.sender).transfer(x.mul(_amount));
     }
 
+    /// @notice Returns the amount of tokens held in the contract
     function checkTokenBalance() public view returns (uint256) {
         return balanceOf(address(this));
     }
 
+    /// @notice Returns user ID 
+    /// @param _userAddress User address
     function getUserId(address _userAddress) public view returns(uint256) {        
         return userId[_userAddress];
     }
 
-    function getInContractBalance(address _userAddress) public view returns(uint256) {
+    /// @notice Returns user account balance 
+    /// @param _userAddress User address
+    function getAccountBalance(address _userAddress) public view returns(uint256) {
         return users[getUserId(_userAddress)].bal;
     }
 }

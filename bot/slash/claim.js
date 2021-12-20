@@ -1,5 +1,5 @@
 const { proposals } = require('../modules/tables.js');
-const { getTodayString, permlevel, concordClaim } = require('../modules/functions.js');
+const { getTodayString, permlevel, concordClaim, isMember } = require('../modules/functions.js');
 const { majorityVote } = require('../modules/voting.js');
 const { MessageActionRow, MessageButton } = require("discord.js");
 const { registeredUsers } = require('../modules/tables.js');
@@ -34,6 +34,9 @@ exports.run = async (client, interaction) => {
     // only register votes roles above a certain level
     const roleFilter = i => permlevel(i) >= 0;
     const collector = proposalMessage.createMessageComponentCollector({ filter: roleFilter, time: 1*1000*30 });
+
+    // only register votes if isMember is true
+    // isMember()
 
     // Keep record of votes so users can change their vote
     let yes_votes = new Set;
