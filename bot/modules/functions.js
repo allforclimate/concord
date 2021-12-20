@@ -195,8 +195,24 @@ async function isRegisteredUser(userId) {
 
 async function getContractBalance() {
   
-  // returns the ETH balance of the contract
+  try {
 
+    // load wallet and provider
+    let wallet = ethers.Wallet.fromMnemonic(process.env.MNEMONIC); 
+    const provider = getInfuraProvider();
+    wallet = wallet.connect(provider);   
+
+    const addressRaw = fs.readFileSync('modules/concordAddress.json');
+    const addr = JSON.parse(addressRaw);
+
+    const constractBalanceRaw = await provider.getBalance(addr.concord);
+    const constractBalance = constractBalanceRaw.toString();
+    console.log("constractBalance: ", constractBalance);
+    return constractBalance;
+
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 // triggers claim() 
@@ -364,5 +380,6 @@ module.exports = {
     concordTip,
     concordWithdraw,
     concordTopup, 
-    concordRegisterMember
+    concordRegisterMember,
+    getContractBalance
 };
