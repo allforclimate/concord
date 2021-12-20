@@ -4,27 +4,13 @@ const { registeredUsers } = require('../modules/tables.js');
 exports.run = async (client, interaction) => { // eslint-disable-line no-unused-vars
   await interaction.deferReply({ ephemeral: true });
 
-  console.log("Hello withdraw!");
-
-  // Get arguments provided by user to command
   const amountRaw = interaction.options.getInteger('amount');
   const amount = amountRaw.toString();
-  //const recipient = interaction.options.getUser('to');
-
-  console.log("yo1");
-
-
   const author = interaction.user;
   const from = author.id;
+  const userId = registeredUsers.get(from);
 
-  console.log("yo2");
-
-  const recipientAddress = registeredUsers.get(from);
-
-  console.log("yo3");
-
-
-  await concordWithdraw(recipientAddress,amount);
+  await concordWithdraw(userId,amount);
   await interaction.editReply(`Hey! You just received ${amount} CC on your wallet: https://rinkeby.etherscan.io/tx/${txHash}`);
 
 };
