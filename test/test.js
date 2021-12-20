@@ -98,8 +98,8 @@ describe("Interactions", function () {
     expect(francisBal.toString()).to.equal(ethers.utils.parseEther("1"));
   });
 
-  it("Frontend gets Francis in-contract balance", async function () {
-    getFrancisBal3 = await concord.getInContractBalance(francis.address);
+  it("Frontend gets Francis account balance", async function () {
+    getFrancisBal3 = await concord.getAccountBalance(francis.address);
     expect(getFrancisBal3.toString()).to.equal(ethers.utils.parseEther("1"));
   });
   
