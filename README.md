@@ -1,6 +1,6 @@
 # Concord
 
-An all in one solution for DAOs
+An all-in-one solution for DAOs
 
 ## Motivation
 
