@@ -17,8 +17,8 @@ The project is documented in [this Wiki](https://github.com/AllForClimate/concor
 In Discord, users can:
 
 - Create and vote on proposals
-- Claim retro-active expanses
-- Tip eachother
+- Claim retro-active expenses
+- Tip each other
 
 ## Install
 
