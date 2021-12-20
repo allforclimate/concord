@@ -131,7 +131,7 @@ async function getAccountBalance(userAddress) {
   const concord = await loadContract();
   userAddress = ethers.utils.getAddress(userAddress);
 
-  let balance = await contract.getInContractBalance(userAddress);
+  let balance = await concord.getInContractBalance(userAddress);
   accountBalance = ethers.utils.formatEther(balance);
   console.log("bal: ", balance.toString());
 
@@ -181,10 +181,17 @@ function submitProposal(proposalId, outcome) {
     return false;
 }
 
-async function isMember(userId) {
+async function isMember(address) {
+  // address = "0x961fF506d6516633056c57315bE10a12fa449Ebc";
+  const concord = await loadContract();
+  const call = await concord.getUserId(address);
 
-  // returns true if users[_id].member == true
-  
+  if (call == 0) {
+    return false;
+  } else {
+    return true;
+  }
+
 }
 
 async function isRegisteredUser(userId) {
@@ -381,5 +388,6 @@ module.exports = {
     concordWithdraw,
     concordTopup, 
     concordRegisterMember,
-    getContractBalance
+    getContractBalance,
+    isMember
 };
