@@ -107,7 +107,7 @@ contract Concord is ERC20, Ownable {
         _mint(msg.sender, msg.value);
     }
 
-    /// @notice Calculates the account balances of sender and recipient 
+    /// @notice transfers amount from sender to recipient in non-withdrawn funds 
     /// @dev This function can only be triggered by the Discord bot
     /// @param _sender The account to debit
     /// @param _recipient The account to credit
