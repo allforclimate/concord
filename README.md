@@ -1,6 +1,6 @@
 # Concord
 
-A new form of DAO.
+An all in one solution for DAOs
 
 ## Motivation
 
