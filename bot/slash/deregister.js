@@ -4,7 +4,7 @@ const { registeredUsers } = require('../modules/tables.js');
 exports.run = async (client, interaction) => { // eslint-disable-line no-unused-vars
   await interaction.deferReply({ ephemeral: true });
   const userId = interaction.user.id;
-  const userName = interaction.user.name;
+  const userName = interaction.user.username;
 
   registeredUsers.delete(userId);
 
