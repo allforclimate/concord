@@ -153,18 +153,18 @@ async function getWalletBalance(userAddress) {
 
 // isRegistered(String) checks it he user has registered their wallet
 function isRegistered(userId) {
-    return registeredUsers.indexes.includes(userId);
+  return registeredUsers.indexes.includes(userId);
 };
 
-// canVote(String) checks if the user is registered and has enough coins in wallet to be able to vote
-async function canVote(userId) {
-    if (isRegistered(userId)) {
-        const userAddress = registeredUsers.get(userId);
-        const balance = await getTokenBalance(userAddress);
-        return balance > 0.0000001;
-    } else {
-        return false;
-    }
+// canVoteBalance(String) checks if the user is registered and has enough coins in wallet to be able to vote
+async function canVoteBalance(userId) {
+  if (isRegistered(userId)) {
+    const userAddress = registeredUsers.get(userId);
+    const balance = await getTokenBalance(userAddress);
+    return balance > 0.0000001;
+  } else {
+    return false;
+  }
 };
 
 // submitProposal(string, bool) ensures that votes from Discord are placed on-chain by submitting
@@ -182,16 +182,18 @@ function submitProposal(proposalId, outcome) {
 }
 
 async function isMember(address) {
-  //address = "0x961fF506d6516633056c57315bE10a12fa449Ebc";
   const concord = await loadContract();
-  const call = await concord.getUserId(address);
+  if (address != 'unregistered' & ethers.utils.isAddress(address)) {
+    const call = await concord.getUserId(address);
 
-  if (call == 0) {
-    return false;
+    if (call == 0) {
+      return false;
+    } else {
+      return true;
+    }
   } else {
-    return true;
+    return false
   }
-
 }
 
 async function isRegisteredUser(userId) {
@@ -379,7 +381,7 @@ module.exports = {
     getAccountBalance,
     getWalletBalance,
     isRegistered,
-    canVote,
+    canVoteBalance,
     getInfuraProvider,
     submitProposal,
     concordClaim, 
