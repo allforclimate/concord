@@ -4,7 +4,7 @@ An all-in-one solution for DAOs
 
 ## Motivation
 
-The idea is to give citizens an easy way to create a DAO for their community, so that they can start rebuilding local resilience, reclaim empty spaces, manage commons, and organize events.
+The idea is to give citizens an easy way to create a DAO for their community, so that they can start rebuilding local resilience, reclaim empty spaces, manage commons, and fund future projects.
 
 Concord is being built with the support of [All for Climate DAO](https://twitter.com/all4climatedao).
 
