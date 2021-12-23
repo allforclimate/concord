@@ -6,7 +6,7 @@ exports.run = async (client, interaction) => { // eslint-disable-line no-unused-
   const userId = interaction.user.id;
   const userName = interaction.user.username;
 
-  registeredUsers.delete(userId);
+  registeredUsers.set(userId, 'deregistered');
 
   interaction.editReply({
       content: `No worries ${userName}, you wallet address has been deleted.`,
