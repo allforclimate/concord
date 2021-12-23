@@ -6,26 +6,16 @@ exports.run = async (client, interaction) => { // eslint-disable-line no-unused-
   await interaction.deferReply({ephemeral: true});
   const address = interaction.options.getString('address');
   const userId = interaction.user.id;
-  const registered_before = registeredUsers.get(userId) != undefined;
-  console.log(`registered_before = ${registered_before}`);
   console.log(`address passed: ${address}`);
 
   if (ethers.utils.isAddress(address)) {
     registeredUsers.set(userId, address);
 
-    // Only send them 20CC if it's the first time they register.
-    if (!registered_before) {
-      const txHash = await concordRegisterMember(address);
-      interaction.editReply(`Congrats ${interaction.user.username}! As a new member, you just received 20 CC: https://rinkeby.etherscan.io/tx/${txHash} \n \n Welcome to Concord!`)
-      // interaction.editReply({content: `Thanks!`, ephemeral: true})
-        .then(() => console.log('Replied successfully.'))
-        .catch(console.error);
-    } else {
-      interaction.editReply({
-        content: `Your address has been registered.`,
-        ephemeral: true
-      }).then().catch(console.error);
-    }
+    const txHash = await concordRegisterMember(address);
+    interaction.editReply(`Congrats ${interaction.user.username}! As a new member, you just received 20 CC: https://rinkeby.etherscan.io/tx/${txHash} \n \n Welcome to Concord!`)
+    // interaction.editReply({content: `Thanks!`, ephemeral: true})
+      .then(() => console.log('Replied successfully.'))
+      .catch(console.error);
   } else {
     interaction.editReply({
       content: `Oops! This doesn't seem to be a valid Ethereum address. Are you sure you entered it correctly?`,
