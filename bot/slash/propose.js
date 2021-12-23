@@ -7,159 +7,168 @@ const { ethers } = require("ethers");
 
 exports.run = async (client, interaction) => {
   await interaction.deferReply();
+  const userId = interaction.user.id;
+  const address = registeredUsers.get(userId) || 'unregistered';
+  const can_propose = await isMember(address);
 
-  try {
+  if (can_propose) {
+    try {
 
-    const cBal = await getContractBalance();
+      const cBal = await getContractBalance();
 
-    const proposal_text = interaction.options.getString('proposal');
-    const voting_type = interaction.options.getString('voting type');
-    const amount = interaction.options.getString('amount');
+      const proposal_text = interaction.options.getString('proposal');
+      const voting_type = interaction.options.getString('voting type');
+      const amount = interaction.options.getString('amount');
 
-    if (amount <= ethers.utils.formatEther(cBal)) {
+      if (amount <= ethers.utils.formatEther(cBal)) {
 
-      // Post the claim in the "claims" channel for admins to approve or deny
-      const proposalsChannel = client.channels.cache.find(channel => channel.name == 'proposals');
-      const buttons = new MessageActionRow()
-        .addComponents([
-        new MessageButton()
-          .setCustomId('yes')
-          .setLabel('Yay')
-          .setStyle('SUCCESS'),
-        new MessageButton()
-          .setCustomId('no')
-          .setLabel('Nay')
-          .setStyle('DANGER')
-        ])
-      
-      const proposal_message_content = `${interaction.user.username} has requested ${amount} ETH for ${proposal_text}`;
-      const proposalMessage = await proposalsChannel.send({
-        content: proposal_message_content,
-        components: [buttons]
-      });
+        // Post the claim in the "claims" channel for admins to approve or deny
+        const proposalsChannel = client.channels.cache.find(channel => channel.name == 'proposals');
+        const buttons = new MessageActionRow()
+          .addComponents([
+          new MessageButton()
+            .setCustomId('yes')
+            .setLabel('Yay')
+            .setStyle('SUCCESS'),
+          new MessageButton()
+            .setCustomId('no')
+            .setLabel('Nay')
+            .setStyle('DANGER')
+          ])
+        
+        const proposal_message_content = `${interaction.user.username} has requested ${amount} ETH for ${proposal_text}`;
+        const proposalMessage = await proposalsChannel.send({
+          content: proposal_message_content,
+          components: [buttons]
+        });
 
-      const collector = proposalMessage.createMessageComponentCollector({ time: 1*1000*30 });
+        const collector = proposalMessage.createMessageComponentCollector({ time: 1*1000*30 });
 
-      // only register votes if isMember is true
-      // isMember()
+        // only register votes if isMember is true
+        // isMember()
 
-      // Keep record of votes so users can change their vote
-      let yes_votes = new Set;
-      let no_votes = new Set;
-      let id_name_mapping = new Map;
+        // Keep record of votes so users can change their vote
+        let yes_votes = new Set;
+        let no_votes = new Set;
+        let id_name_mapping = new Map;
 
-      collector.on('collect', async i => {
-        const decision = i.customId;
-        const voterId = i.user.id;
-        const voterName = i.user.username;
-        const address = registeredUsers.get(voterId) || 'unregistered';
-        const can_vote = await isMember(address);
+        collector.on('collect', async i => {
+          const decision = i.customId;
+          const voterId = i.user.id;
+          const voterName = i.user.username;
+          const address = registeredUsers.get(voterId) || 'unregistered';
+          const can_vote = await isMember(address);
 
-        // Check if user is allowed to vote
-        if (can_vote) {
-          id_name_mapping.set(voterId, voterName);
-          console.log(`Collected ${decision} from ${voterName}`);
+          // Check if user is allowed to vote
+          if (can_vote) {
+            id_name_mapping.set(voterId, voterName);
+            console.log(`Collected ${decision} from ${voterName}`);
 
-          if (decision === 'yes') {
-            yes_votes.add(voterId);
-            
-            // if previously voted no, remove the no vote
-            if (no_votes.has(voterId)) {
-              no_votes.delete(voterId);
+            if (decision === 'yes') {
+              yes_votes.add(voterId);
+              
+              // if previously voted no, remove the no vote
+              if (no_votes.has(voterId)) {
+                no_votes.delete(voterId);
+              }
+            } else {
+              no_votes.add(voterId);
+              
+              // if previously voted no, remove the no vote
+              if (yes_votes.has(voterId)) {
+                yes_votes.delete(voterId);
+              }
             }
+
+            i.update({
+              content: proposal_message_content + `\n Tally so far: \n ${yes_votes.size} yay | ${no_votes.size} nay`,
+              components: [buttons]
+            });
           } else {
-            no_votes.add(voterId);
+            // if not registered and trying to vote, inform user of registration possibility
+            const dm_channel = await i.user.createDM()
+            dm_channel.send(`Oops! Looks like you tried to vote without registering. Please register first by calling /register.`)
+          }
+        });
+
+        collector.on('end', async collected => {
+
+          key = getTodayString();
+          let decision, yes_vote_count, no_vote_count;
+
+          // get decision based on voting type chosen
+          switch (voting_type) {
+            case 'majority':
+              [decision, yes_vote_count, no_vote_count] = await majorityVote(yes_votes, no_votes, proposalMessage, proposal_text);
             
-            // if previously voted no, remove the no vote
-            if (yes_votes.has(voterId)) {
-              yes_votes.delete(voterId);
-            }
+            default: // defaults to majority
+              [decision, yes_vote_count, no_vote_count] = await majorityVote(yes_votes, no_votes, proposalMessage, proposal_text);
           }
 
-          i.update({
-            content: proposal_message_content + `\n Tally so far: \n ${yes_votes.size} yay | ${no_votes.size} nay`,
-            components: [buttons]
+          // Update ephemeral reply to user with conclusion of vote
+          if (decision == 'pass') {
+            await interaction.editReply(`Congrats! Your proposal has passed!`);
+            const address = registeredUsers.get(interaction.user.id);
+            const txHash = await concordPropose(address, amount, proposal_text);
+            await interaction.editReply(`${interaction.user.username} has received ${amount} ETH from the treasury: https://rinkeby.etherscan.io/tx/${txHash}`);
+          } else if (decision == 'fail') {
+            await interaction.editReply(`Sorry, looks like the community doesn't agree with your proposal.`)
+          } else {
+            await interaction.editReply(`Sorry, looks like the proposal ended in a tie.`)
+          }
+
+          // Add voter username alongside the ID for better human inspection
+          const yes_voters = Array(yes_votes).map((id) => {
+            return [id, id_name_mapping.get(id)]
           });
-        } else {
-          // if not registered and trying to vote, inform user of registration possibility
-          const dm_channel = await i.user.createDM()
-          dm_channel.send(`Oops! Looks like you tried to vote without registering. Please register first by calling /register.`)
-        }
-      });
 
-      collector.on('end', async collected => {
-
-        key = getTodayString();
-        let decision, yes_vote_count, no_vote_count;
-
-        // get decision based on voting type chosen
-        switch (voting_type) {
-          case 'majority':
-            [decision, yes_vote_count, no_vote_count] = await majorityVote(yes_votes, no_votes, proposalMessage, proposal_text);
+          const no_voters = Array(no_votes).map((id) => {
+            return [id, id_name_mapping.get(id)]
+          });
           
-          default: // defaults to majority
-            [decision, yes_vote_count, no_vote_count] = await majorityVote(yes_votes, no_votes, proposalMessage, proposal_text);
-        }
-
-        // Update ephemeral reply to user with conclusion of vote
-        if (decision == 'pass') {
-          await interaction.editReply(`Congrats! Your proposal has passed!`);
-          const address = registeredUsers.get(interaction.user.id);
-          const txHash = await concordPropose(address, amount, proposal_text);
-          await interaction.editReply(`${interaction.user.username} has received ${amount} ETH from the treasury: https://rinkeby.etherscan.io/tx/${txHash}`);
-        } else if (decision == 'fail') {
-          await interaction.editReply(`Sorry, looks like the community doesn't agree with your proposal.`)
-        } else {
-          await interaction.editReply(`Sorry, looks like the proposal ended in a tie.`)
-        }
-
-        // Add voter username alongside the ID for better human inspection
-        const yes_voters = Array(yes_votes).map((id) => {
-          return [id, id_name_mapping.get(id)]
-        });
-
-        const no_voters = Array(no_votes).map((id) => {
-          return [id, id_name_mapping.get(id)]
+          // Create proposal record and add to proposals Enmap
+          if (proposals.has(key)) {
+            today_proposals = proposals.get(key);
+            numeric_indexes = Array.from(Object.keys(today_proposals)).map((num) => Number(num));
+            // get largest existing proposal ID for today's date
+            current_count = Math.max(...numeric_indexes);
+            counter = current_count + 1;
+            proposal_record = {
+              [counter]: {
+                'proposal': proposal_text,
+                'decision': decision,
+                'yesCount': yes_vote_count,
+                'noCount': no_vote_count,
+                'yesVoters': yes_voters,
+                'noVoters': no_voters
+              }
+            };
+            today_proposals = Object.assign(today_proposals, proposal_record);
+          } else {
+            today_proposals = {
+              0: {
+                'proposal': proposal_text,
+                'decision': decision,
+                'yesCount': yes_vote_count,
+                'noCount': no_vote_count,
+                'yesVoters': yes_voters,
+                'noVoters': no_voters
+              }
+            };
+          }
+          proposals.set(key, today_proposals);
         });
         
-        // Create proposal record and add to proposals Enmap
-        if (proposals.has(key)) {
-          today_proposals = proposals.get(key);
-          numeric_indexes = Array.from(Object.keys(today_proposals)).map((num) => Number(num));
-          // get largest existing proposal ID for today's date
-          current_count = Math.max(...numeric_indexes);
-          counter = current_count + 1;
-          proposal_record = {
-            [counter]: {
-              'proposal': proposal_text,
-              'decision': decision,
-              'yesCount': yes_vote_count,
-              'noCount': no_vote_count,
-              'yesVoters': yes_voters,
-              'noVoters': no_voters
-            }
-          };
-          today_proposals = Object.assign(today_proposals, proposal_record);
-        } else {
-          today_proposals = {
-            0: {
-              'proposal': proposal_text,
-              'decision': decision,
-              'yesCount': yes_vote_count,
-              'noCount': no_vote_count,
-              'yesVoters': yes_voters,
-              'noVoters': no_voters
-            }
-          };
-        }
-        proposals.set(key, today_proposals);
-      });
-      
-    } else {
-      await interaction.editReply(`Sorry, the community can't afford your proposal. We only have ${ethers.utils.formatEther(cBal)} ETH to spend.`)
-    }
-  } catch (error) {
+      } else {
+        await interaction.editReply(`Sorry, the community can't afford your proposal. We only have ${ethers.utils.formatEther(cBal)} ETH to spend.`)
+      }
+    } catch (error) {
       console.log(error);
+    }
+  } else {
+    interaction.deleteReply();
+    const dm_channel = await interaction.user.createDM();
+    dm_channel.send(`Oops! Looks like you tried to create a proposal without registering. Please register first by calling /register.`);
   }
 };
 
