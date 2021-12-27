@@ -63,8 +63,9 @@ function App() {
   const [txBeingSent, setTxBeingSent] = useState(false);
   const [contractBalance, setContractBalance] = useState(0);
   const [userBalance, setUserBalance] = useState(0);
-  const [userInContractBalance, setUserInContractBalance] = useState(0);
-  const [give, setGive] = useState(false);
+  const [userAccountBal, setUserAccountBal] = useState(0);
+  const [ccTotalSupply, setCcTotalSupply] = useState(0);
+  const [amount, setAmount] = useState(0);
 
   useEffect(() => {
     async function fetchAccount() {
@@ -93,7 +94,13 @@ function App() {
         const concordBalanceFormatted = ethers.utils.formatEther(concordBalance);
         setContractBalance(concordBalanceFormatted);
         console.log("Contract ETH balance: ", concordBalanceFormatted);
-        
+
+        const concord = new Contract(addresses.concord, abis.concord, defaultProvider);
+        const getTotalSupplyRaw = await concord.totalSupply();      
+        const ccTotalSupply = ethers.utils.formatEther(getTotalSupplyRaw);
+
+        setCcTotalSupply(ccTotalSupply);
+
       } catch (err) {
         console.error(err);
       }
@@ -112,47 +119,47 @@ function App() {
 
         setUserBalance(userTokenBalanceFormatted);
 
-        const getUserBal = await concord.getInContractBalance(account);
-        const userInContractBal = ethers.utils.formatEther(getUserBal);
+        const getUserBal = await concord.getAccountBalance(account);
+        const userAccountBal = ethers.utils.formatEther(getUserBal);
 
-
-        setUserInContractBalance(userInContractBal);
+        setUserAccountBal(userAccountBal);
         
       } catch (err) {
         console.error(err);
       }
     }
     fetchUserBalance(account);
-  // }, [account, userBalance, userInContractBalance, contractBalance, provider, setAccount]);
-  }, [account, userBalance, contractBalance, provider, setAccount]);
+  // }, [account, userBalance, userAccountBal, contractBalance, provider, setAccount]);
+  }, [account, userBalance, userAccountBal, contractBalance, ccTotalSupply, provider, setAccount]);
 
   async function donate() {
 
     try {
+
+      console.log("amount: ", amount);
       
       setTxBeingSent(true);
 
       const signer = provider.getSigner(0);
       const concord = new Contract(addresses.concord, abis.concord, signer);
-      const giveTx = await concord.give({value: ethers.utils.parseEther("0.0000002")});
+
+      const amountFormatted = ethers.utils.parseEther(amount);
+
+      const giveTx = await concord.give({value: amountFormatted});
 
       const receipt = await giveTx.wait();
 
         if (receipt.status === 0) {
             throw new Error("Failed");
         }
-
-      setGive(true);
       
     } catch (err) {
-      setGive(false);
       console.error(err);
     } finally {
       setTxBeingSent(false);
       window.location.reload();
     }
-  }
-  
+  }  
 
   React.useEffect(() => {
     if (!loading && !error && data && data.transfers) {
@@ -169,32 +176,35 @@ function App() {
         <p>
           Concord balance: {contractBalance} ETH
         </p>
-        {txBeingSent === true &&
         <p>
-          Processing...
+          As of today, there are {ccTotalSupply} CC tokens in circulation.
         </p>
-        }
-        {give === true &&
+        {txBeingSent === true &&
         <p>
           Thank you very much! 🙂
         </p>
         }
 
-        <SuperButton onClick={() => donate()}>
-          Donate 0.0000002 ETH
+        <input onChange={(e)=> setAmount(e.target.value)} type="text" name="amountToDonate" style={{ marginBottom: "20px" }} />< br/>
+        <SuperButton onClick={donate}>
+          Donate
         </SuperButton>
         
         {userBalance > 0 &&
         <p>
-          You have <strong>{userBalance}</strong> CC tokens on your wallet.
+          You have <strong>{userBalance}</strong> CC tokens in your wallet.
         </p>
         }
-        {userInContractBalance > 0 &&
+        {userAccountBal > 0 &&
         <p>
-          You have <strong>{userInContractBalance}</strong> CC in your Discord account.
+          You have <strong>{userAccountBal}</strong> CC in your account. < br/>
+          <input type="text" name="amountToWithdraw" style={{ marginRight: "8px" }} />
+          <SuperButton className="btn btn-primary btn-sm">
+          Topup my account
+        </SuperButton>
         </p>
         }
-        <p><Link href="https://rinkeby.etherscan.io/address/0x8de5469C2e9ED83100121AC84Ad3884Bbf296D26" style={{ marginTop: "8px" }}>See on Etherscan</Link></p>
+        <p><Link href="https://rinkeby.etherscan.io/address/0x014ebB0072bC69d928Dbb36755920D8F6a162d8b" style={{ marginTop: "8px" }}>See on Etherscan</Link></p>
       </Body>
     </div>
   );
