@@ -120,13 +120,12 @@ contract Concord is ERC20, Ownable {
 
     /// @notice Transfers tokens from user to contract and credit his user account 
     /// @dev This function can only be triggered by the Discord bot
-    /// @param _id Account ID
-    /// @param _user User address
     /// @param _amount Amount to credit
-    function topup(uint256 _id, address _user, uint _amount) public onlyOwner {
-        require(balanceOf(_user) > _amount, "Not enough tokens");
-        users[_id].bal += _amount;
-        _transfer(_user,address(this),_amount);
+    function topup(uint _amount) public {
+        require(balanceOf(msg.sender) > _amount, "Not enough tokens");
+        require(getUserId(msg.sender) != 0, "Must register");
+        users[getUserId(msg.sender)].bal += _amount;
+        transfer(address(this),_amount);
     }
 
     /// @notice Transfers tokens from contract to user and debit user account
