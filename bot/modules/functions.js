@@ -12,12 +12,10 @@ const { registeredUsers } = require("./tables.js");
 
 /*
   PERMISSION LEVEL FUNCTION
-
   This is a very basic permission system for commands which uses "levels"
   "spaces" are intentionally left black so you can add them if you want.
   NEVER GIVE ANYONE BUT OWNER THE LEVEL 10! By default this can run any
   command including the VERY DANGEROUS `eval` and `exec` commands!
-
   */
 function permlevel(message) {
   let permlvl = 0;
@@ -37,11 +35,9 @@ function permlevel(message) {
 
 /*
   GUILD SETTINGS FUNCTION
-
   This function merges the default settings (from config.defaultSettings) with any
   guild override you might have for particular guild. If no overrides are present,
   the default settings are used.
-
 */
   
 // getSettings merges the client defaults with the guild settings. guild settings in
@@ -57,15 +53,11 @@ function getSettings(guild) {
 
 /*
   SINGLE-LINE AWAIT MESSAGE
-
   A simple way to grab a single reply, from the user that initiated
   the command. Useful to get "precisions" on certain things...
-
   USAGE
-
   const response = await awaitReply(msg, "Favourite Color?");
   msg.reply(`Oh, I really love ${response} too!`);
-
 */
 async function awaitReply(msg, question, limit = 60000) {
   const filter = m => m.author.id === msg.author.id;
@@ -131,7 +123,7 @@ async function getAccountBalance(userAddress) {
   const concord = await loadContract();
   userAddress = ethers.utils.getAddress(userAddress);
 
-  let balance = await concord.getInContractBalance(userAddress);
+  let balance = await concord.getAccountBalance(userAddress);
   accountBalance = ethers.utils.formatEther(balance);
   console.log("bal: ", balance.toString());
 
