@@ -27,17 +27,17 @@
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "beneficiary",
+				"name": "_beneficiary",
 				"type": "uint256"
 			},
 			{
 				"internalType": "uint256",
-				"name": "amount",
+				"name": "_amount",
 				"type": "uint256"
 			},
 			{
 				"internalType": "string",
-				"name": "task",
+				"name": "_task",
 				"type": "string"
 			}
 		],
@@ -189,17 +189,17 @@
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "beneficiary",
+				"name": "_beneficiary",
 				"type": "address"
 			},
 			{
 				"internalType": "uint256",
-				"name": "amount",
+				"name": "_amount",
 				"type": "uint256"
 			},
 			{
 				"internalType": "string",
-				"name": "reason",
+				"name": "_reason",
 				"type": "string"
 			}
 		],
@@ -280,7 +280,7 @@
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "amount",
+				"name": "_amount",
 				"type": "uint256"
 			}
 		],
@@ -306,7 +306,7 @@
 		"inputs": [
 			{
 				"internalType": "address",
-				"name": "_member",
+				"name": "_user",
 				"type": "address"
 			}
 		],
@@ -326,17 +326,17 @@
 		"inputs": [
 			{
 				"internalType": "uint256",
-				"name": "tipper",
+				"name": "_sender",
 				"type": "uint256"
 			},
 			{
 				"internalType": "uint256",
-				"name": "recipient",
+				"name": "_recipient",
 				"type": "uint256"
 			},
 			{
 				"internalType": "uint256",
-				"name": "amount",
+				"name": "_amount",
 				"type": "uint256"
 			}
 		],
@@ -558,7 +558,7 @@
 				"type": "address"
 			}
 		],
-		"name": "getInContractBalance",
+		"name": "getAccountBalance",
 		"outputs": [
 			{
 				"internalType": "uint256",
