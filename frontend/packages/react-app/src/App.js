@@ -3,7 +3,7 @@ import { Contract } from "@ethersproject/contracts";
 import { getDefaultProvider } from "@ethersproject/providers";
 import React, { useEffect, useState } from "react";
 import { ethers } from 'ethers';
-import { Body, Button, Header, Link, SuperButton } from "./components";
+import { Body, Button, Header, Link, SuperButton, TopupButton } from "./components";
 import useWeb3Modal from "./hooks/useWeb3Modal";
 import { addresses, abis } from "@project/contracts";
 import GET_TRANSFERS from "./graphql/subgraph";
@@ -63,8 +63,10 @@ function App() {
   const [txBeingSent, setTxBeingSent] = useState(false);
   const [contractBalance, setContractBalance] = useState(0);
   const [userBalance, setUserBalance] = useState(0);
-  const [userInContractBalance, setUserInContractBalance] = useState(0);
-  const [give, setGive] = useState(false);
+  const [userAccountBal, setUserAccountBal] = useState(0);
+  const [ccTotalSupply, setCcTotalSupply] = useState(0);
+  const [amount, setAmount] = useState(0);
+  const [topup, setTopup] = useState(0);
 
   useEffect(() => {
     async function fetchAccount() {
@@ -93,7 +95,13 @@ function App() {
         const concordBalanceFormatted = ethers.utils.formatEther(concordBalance);
         setContractBalance(concordBalanceFormatted);
         console.log("Contract ETH balance: ", concordBalanceFormatted);
-        
+
+        const concord = new Contract(addresses.concord, abis.concord, defaultProvider);
+        const getTotalSupplyRaw = await concord.totalSupply();      
+        const ccTotalSupply = ethers.utils.formatEther(getTotalSupplyRaw);
+
+        setCcTotalSupply(ccTotalSupply);
+
       } catch (err) {
         console.error(err);
       }
@@ -112,47 +120,74 @@ function App() {
 
         setUserBalance(userTokenBalanceFormatted);
 
-        const getUserBal = await concord.getInContractBalance(account);
-        const userInContractBal = ethers.utils.formatEther(getUserBal);
+        const getUserBal = await concord.getAccountBalance(account);
+        const userAccountBal = ethers.utils.formatEther(getUserBal);
 
-
-        setUserInContractBalance(userInContractBal);
+        setUserAccountBal(userAccountBal);
         
       } catch (err) {
         console.error(err);
       }
     }
     fetchUserBalance(account);
-  // }, [account, userBalance, userInContractBalance, contractBalance, provider, setAccount]);
-  }, [account, userBalance, contractBalance, provider, setAccount]);
+  // }, [account, userBalance, userAccountBal, contractBalance, provider, setAccount]);
+  }, [account, userBalance, userAccountBal, contractBalance, ccTotalSupply, provider, setAccount]);
 
   async function donate() {
 
     try {
+
+      console.log("amount: ", amount);
       
       setTxBeingSent(true);
 
+      const amountFormatted = ethers.utils.parseEther(amount);
+
       const signer = provider.getSigner(0);
       const concord = new Contract(addresses.concord, abis.concord, signer);
-      const giveTx = await concord.give({value: ethers.utils.parseEther("0.0000002")});
+      const giveTx = await concord.give({value: amountFormatted});
 
       const receipt = await giveTx.wait();
 
         if (receipt.status === 0) {
             throw new Error("Failed");
         }
-
-      setGive(true);
       
     } catch (err) {
-      setGive(false);
       console.error(err);
     } finally {
       setTxBeingSent(false);
       window.location.reload();
     }
-  }
-  
+  }  
+
+  async function topupAccount() {
+
+    try {
+
+      console.log("topup: ", topup);
+      
+      setTxBeingSent(true);
+
+      const topupFormatted = ethers.utils.parseEther(topup);
+
+      const signer = provider.getSigner(0);
+      const concord = new Contract(addresses.concord, abis.concord, signer);
+      const topupTx = await concord.topup(topupFormatted.toString());
+
+      const receipt = await topupTx.wait();
+
+        if (receipt.status === 0) {
+            throw new Error("Failed");
+        }
+      
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setTxBeingSent(false);
+      window.location.reload();
+    }
+  }  
 
   React.useEffect(() => {
     if (!loading && !error && data && data.transfers) {
@@ -169,32 +204,33 @@ function App() {
         <p>
           Concord balance: {contractBalance} ETH
         </p>
+        <p>
+          As of today, there are {ccTotalSupply} CC tokens in circulation.
+        </p>
         {txBeingSent === true &&
         <p>
-          Processing...
+          Processing... 😉
         </p>
         }
-        {give === true &&
-        <p>
-          Thank you very much! 🙂
-        </p>
-        }
-
-        <SuperButton onClick={() => donate()}>
-          Donate 0.0000002 ETH
+        <input onChange={(e)=> setAmount(e.target.value)} type="text" name="amountToDonate" style={{ marginBottom: "20px" }} />< br/>
+        <SuperButton onClick={donate}>
+          Donate
         </SuperButton>
-        
+        {userAccountBal > 0 &&
+        <p>
+          You have <strong>{userAccountBal}</strong> CC in your account. 
+        </p>
+        }
         {userBalance > 0 &&
         <p>
-          You have <strong>{userBalance}</strong> CC tokens on your wallet.
+          You have <strong>{userBalance}</strong> CC tokens in your wallet.< br/>
+          <input onChange={(e)=> setTopup(e.target.value)} type="text" name="amountToTopup" style={{ marginBottom: "20px" }} />
+          <TopupButton onClick={topupAccount}>
+          Topup my account
+        </TopupButton>
         </p>
         }
-        {userInContractBalance > 0 &&
-        <p>
-          You have <strong>{userInContractBalance}</strong> CC in your Discord account.
-        </p>
-        }
-        <p><Link href="https://rinkeby.etherscan.io/address/0x8de5469C2e9ED83100121AC84Ad3884Bbf296D26" style={{ marginTop: "8px" }}>See on Etherscan</Link></p>
+        <p><Link href="https://rinkeby.etherscan.io/address/0x6D347962c362C8DDd9E0c4324756CeD5F4c15945" style={{ marginTop: "8px" }}>See on Etherscan</Link></p>
       </Body>
     </div>
   );
