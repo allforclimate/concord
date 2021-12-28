@@ -3,7 +3,7 @@ import { Contract } from "@ethersproject/contracts";
 import { getDefaultProvider } from "@ethersproject/providers";
 import React, { useEffect, useState } from "react";
 import { ethers } from 'ethers';
-import { Body, Button, Header, Link, SuperButton } from "./components";
+import { Body, Button, Header, Link, SuperButton, TopupButton } from "./components";
 import useWeb3Modal from "./hooks/useWeb3Modal";
 import { addresses, abis } from "@project/contracts";
 import GET_TRANSFERS from "./graphql/subgraph";
@@ -66,6 +66,7 @@ function App() {
   const [userAccountBal, setUserAccountBal] = useState(0);
   const [ccTotalSupply, setCcTotalSupply] = useState(0);
   const [amount, setAmount] = useState(0);
+  const [topup, setTopup] = useState(0);
 
   useEffect(() => {
     async function fetchAccount() {
@@ -140,14 +141,41 @@ function App() {
       
       setTxBeingSent(true);
 
-      const signer = provider.getSigner(0);
-      const concord = new Contract(addresses.concord, abis.concord, signer);
-
       const amountFormatted = ethers.utils.parseEther(amount);
 
+      const signer = provider.getSigner(0);
+      const concord = new Contract(addresses.concord, abis.concord, signer);
       const giveTx = await concord.give({value: amountFormatted});
 
       const receipt = await giveTx.wait();
+
+        if (receipt.status === 0) {
+            throw new Error("Failed");
+        }
+      
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setTxBeingSent(false);
+      window.location.reload();
+    }
+  }  
+
+  async function topupAccount() {
+
+    try {
+
+      console.log("topup: ", topup);
+      
+      setTxBeingSent(true);
+
+      const topupFormatted = ethers.utils.parseEther(topup);
+
+      const signer = provider.getSigner(0);
+      const concord = new Contract(addresses.concord, abis.concord, signer);
+      const topupTx = await concord.topup(topupFormatted.toString());
+
+      const receipt = await topupTx.wait();
 
         if (receipt.status === 0) {
             throw new Error("Failed");
@@ -181,27 +209,25 @@ function App() {
         </p>
         {txBeingSent === true &&
         <p>
-          Thank you very much! 🙂
+          Processing... 😉
         </p>
         }
-
         <input onChange={(e)=> setAmount(e.target.value)} type="text" name="amountToDonate" style={{ marginBottom: "20px" }} />< br/>
         <SuperButton onClick={donate}>
           Donate
         </SuperButton>
-        
-        {userBalance > 0 &&
-        <p>
-          You have <strong>{userBalance}</strong> CC tokens in your wallet.
-        </p>
-        }
         {userAccountBal > 0 &&
         <p>
-          You have <strong>{userAccountBal}</strong> CC in your account. < br/>
-          <input type="text" name="amountToWithdraw" style={{ marginRight: "8px" }} />
-          <SuperButton className="btn btn-primary btn-sm">
+          You have <strong>{userAccountBal}</strong> CC in your account. 
+        </p>
+        }
+        {userBalance > 0 &&
+        <p>
+          You have <strong>{userBalance}</strong> CC tokens in your wallet.< br/>
+          <input onChange={(e)=> setTopup(e.target.value)} type="text" name="amountToTopup" style={{ marginBottom: "20px" }} />
+          <TopupButton onClick={topupAccount}>
           Topup my account
-        </SuperButton>
+        </TopupButton>
         </p>
         }
         <p><Link href="https://rinkeby.etherscan.io/address/0x014ebB0072bC69d928Dbb36755920D8F6a162d8b" style={{ marginTop: "8px" }}>See on Etherscan</Link></p>

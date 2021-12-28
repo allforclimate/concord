@@ -121,7 +121,7 @@ contract Concord is ERC20, Ownable {
     /// @notice A registered user sends tokens to the contract
     /// @param _amount Amount to credit
     function topup(uint _amount) public {
-        require(balanceOf(msg.sender) > _amount, "Not enough tokens");
+        require(balanceOf(msg.sender) >= _amount, "Not enough tokens");
         require(getUserId(msg.sender) != 0, "Must register");
         users[getUserId(msg.sender)].bal += _amount;
         transfer(address(this),_amount);
