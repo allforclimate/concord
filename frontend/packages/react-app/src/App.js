@@ -230,7 +230,7 @@ function App() {
         </TopupButton>
         </p>
         }
-        <p><Link href="https://rinkeby.etherscan.io/address/0x014ebB0072bC69d928Dbb36755920D8F6a162d8b" style={{ marginTop: "8px" }}>See on Etherscan</Link></p>
+        <p><Link href="https://rinkeby.etherscan.io/address/0x6D347962c362C8DDd9E0c4324756CeD5F4c15945" style={{ marginTop: "8px" }}>See on Etherscan</Link></p>
       </Body>
     </div>
   );
