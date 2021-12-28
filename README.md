@@ -1,6 +1,6 @@
 # Concord
 
-An all-in-one solution for DAOs
+An all-in-one solution for DAOs.
 
 ## Motivation
 
@@ -14,11 +14,14 @@ The project is documented in [this Wiki](https://github.com/AllForClimate/concor
 
 ## Features
 
-In Discord, users can:
+Users can: 
 
 - Create and vote on proposals
 - Claim retro-active expenses
 - Tip each other
+- Withdraw to their wallet
+- Topup their account
+- Donate to the DAO
 
 ## Install
 
@@ -38,7 +41,7 @@ npx hardhat test
 In [this short video](https://youtu.be/0LOVJoY1Lc0):
 
 - A member submits a proposal 
-- The community vot in Discord
+- The community vote in Discord
 - The result of the vote triggers a Ethereum transaction 
 
 You can check [this tutorial](https://anidiots.guide/getting-started/getting-started-long-version/) to learn how to test this bot.
@@ -72,6 +75,6 @@ Please note that Concord is not production-ready yet. When the time's right, you
 
 ## Contrib
 
-Please check [CONTRIBUTION.md](https://github.com/AllForClimate/concord/blob/develop/CONTRIBUTION.md) and the current issues.
+Please check [CONTRIBUTION.md](https://github.com/AllForClimate/concord/blob/develop/CONTRIBUTION.md) and [the current issues](https://github.com/AllForClimate/concord/issues).
 
 We're available in [Discord](https://discord.gg/uSxzJp3J76).
