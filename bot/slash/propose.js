@@ -42,7 +42,7 @@ exports.run = async (client, interaction) => {
           components: [buttons]
         });
 
-        const collector = proposalMessage.createMessageComponentCollector({ time: 1*1000*30 });
+        const collector = proposalMessage.createMessageComponentCollector({ time: 1000*30 });
 
         // only register votes if isMember is true
         // isMember()

@@ -31,9 +31,7 @@ exports.run = async (client, interaction) => {
       content: proposal_message_content,
       components: [buttons]});
 
-    // only register votes roles above a certain level
-    const roleFilter = i => permlevel(i) >= 0;
-    const collector = proposalMessage.createMessageComponentCollector({ filter: roleFilter, time: 1*1000*30 });
+    const collector = proposalMessage.createMessageComponentCollector({ time: 1000*30 });
 
     // only register votes if isMember is true
     // isMember()
@@ -43,33 +41,43 @@ exports.run = async (client, interaction) => {
     let no_votes = new Set;
     let id_name_mapping = new Map;
 
-    collector.on('collect', i => {
+    collector.on('collect', async i => {
       const decision = i.customId;
       const voterId = i.user.id;
       const voterName = i.user.username;
-      id_name_mapping.set(voterId, voterName);
-      console.log(`Collected ${decision} from ${voterName}`);
+      const address = registeredUsers.get(voterId) || 'unregistered';
+      const can_vote = await isMember(address);
 
-      if (decision === 'yes') {
-        yes_votes.add(voterId);
-        
-        // if previously voted no, remove the no vote
-        if (no_votes.has(voterId)) {
-          no_votes.delete(voterId);
+      // Check if user is allowed to vote
+      if (can_vote) {
+        id_name_mapping.set(voterId, voterName);
+        console.log(`Collected ${decision} from ${voterName}`);
+
+        if (decision === 'yes') {
+          yes_votes.add(voterId);
+          
+          // if previously voted no, remove the no vote
+          if (no_votes.has(voterId)) {
+            no_votes.delete(voterId);
+          }
+        } else {
+          no_votes.add(voterId);
+          
+          // if previously voted no, remove the no vote
+          if (yes_votes.has(voterId)) {
+            yes_votes.delete(voterId);
+          }
         }
+
+        i.update({
+          content: proposal_message_content + `\n Tally so far: \n ${yes_votes.size} yay | ${no_votes.size} nay`,
+          components: [buttons]
+        });
       } else {
-        no_votes.add(voterId);
-        
-        // if previously voted no, remove the no vote
-        if (yes_votes.has(voterId)) {
-          yes_votes.delete(voterId);
-        }
+        // if not registered and trying to vote, inform user of registration possibility
+        const dm_channel = await i.user.createDM()
+        dm_channel.send(`Oops! Looks like you tried to vote without registering. Please register first by calling /register.`)
       }
-
-      i.update({
-        content: proposal_message_content + `\n Tally so far: \n ${yes_votes.size} yay | ${no_votes.size} nay`,
-        components: [buttons]
-      });
     });
 
     collector.on('end', async collected => {
@@ -88,14 +96,14 @@ exports.run = async (client, interaction) => {
 
       // Update ephemeral reply to user with conclusion of vote
       if (decision == 'pass') {
-        await interaction.editReply(`Congrats! Your proposal has passed!`);
+        await interaction.editReply(`Congrats! Your claim has been approved!`);
         console.log("address: ", address);
         const txHash = await concordClaim(interaction.user.id, amount, proposal_text);
         await interaction.editReply(`${interaction.user.username} has received ${amount} CC: https://rinkeby.etherscan.io/tx/${txHash}`);
       } else if (decision == 'fail') {
         await interaction.editReply(`Sorry, looks like the community doesn't agree with your claim.`)
       } else {
-        await interaction.editReply(`Sorry, looks like the proposal ended in a tie.`)
+        await interaction.editReply(`Sorry, looks like the claim proposal ended in a tie.`)
       }
 
       // Add voter username alongside the ID for better human inspection
