@@ -5,7 +5,7 @@ const fs = require('fs');
 
 // const contractsDir = __dirname + '/../frontend/src/contracts'; // old
 // const contractsDir = __dirname + '/../frontend/contracts/src/ . . . '; // to edit
-const contractsDir = __dirname + '/../bot/contracts';
+const contractsDir = __dirname + '/../contracts';
 
 async function main() {
   if (network.name === 'hardhat') {

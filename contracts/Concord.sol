@@ -19,60 +19,57 @@ contract Concord is ERC20, Ownable {
 	    uint256 bal;
         bool member; // returns true when user is a member (i.e. a voting user)
     }
-    User[] public users;
+
+    // Map Discord ID to a User object
+    mapping(uint256 => User) private users;
+
+    // Map address to Discord ID for front-end usage
     mapping(address => uint256) public userId;
 
     /// @dev First member gets member id "1"
     /// @param _bot Discord bot's address
-    /// @param _member First member's address
     /// @param _name Name of the ERC-20 token
     /// @param _symbol Symbol of the ERC-20 token
     /// @param _welcome Amount of tokens to transfer to a newly registerd member
     constructor(
-        address _bot, 
-        address _member,
+        address _bot,
         string memory _name, 
         string memory _symbol, 
         uint256 _welcome
     )
         ERC20(_name, _symbol) payable {
         welcome = _welcome;
-        users.push(
-	        User({
-                addr: 0x0000000000000000000000000000000000000000,
-		        bal: 0,
-		        member: false
-	        })
-	    );
-        registerMember(_member);
         transferOwnership(_bot);
-    }
-    
-    /// @dev Registers a non-voting user 
-    /// @param _user New user's address
-    function registerUser(address _user) public onlyOwner {
-        users.push(
-	        User({
-                addr: _user,
-		        bal: 0,
-		        member: false
-	        })
-	    );
-        userId[_user] = users.length - 1;
     }
 
     /// @dev Registers a member (i.e. a voting user) 
-    /// @param _member New member's address
-    function registerMember(address _member) public onlyOwner {
-        users.push(
-	        User({
-                addr: _member,
-		        bal: welcome,
-		        member: true
-	        })
-	    );
-        _mint(address(this), welcome);
-        userId[_member] = users.length - 1;
+    /// @param _discordId New user's numeric discord ID
+    /// @param _address New user's address
+    function registerMember(uint256 _discordId, address _address) public onlyOwner {
+        // Revert if address is already registered with another user
+        if (userId[_address] == 0) {
+
+            // Existing user --> Update address
+            if (users[_discordId].addr != address(0x0)) {
+                userId[users[_discordId].addr] = 0;
+                users[_discordId].addr = _address;
+                userId[_address] = _discordId;
+
+            // First time user? --> Award welcome tokens
+            } else {
+                users[_discordId] = User({
+                    addr: _address,
+                    bal: welcome,
+                    member: true
+                });
+
+                userId[_address] = _discordId;
+
+                _mint(address(this), welcome);
+            }
+        } else {
+            revert("Address is already registered");
+        }
     }
     
     /// @notice Sends funds from the contract to the beneficiary
@@ -80,10 +77,11 @@ contract Concord is ERC20, Ownable {
     /// @param _beneficiary The recipient address
     /// @param _amount Amount of ETH to send from the treasury to the beneficiary
     /// @param _reason Jusification for this expanse
-    function executeProposal(address _beneficiary, uint256 _amount, string memory _reason) public payable onlyOwner {
-        require(address(this).balance > _amount, "Insuficient funds");        
-        payable(_beneficiary).transfer(_amount);
-        emit ProposalExecuted(_beneficiary, _amount, _reason);
+    function executeProposal(uint256 _beneficiary, uint256 _amount, string memory _reason) public payable onlyOwner {
+        require(address(this).balance > _amount, "Insuficient funds");
+        address beneficiaryAddress = users[_beneficiary].addr;    
+        payable(beneficiaryAddress).transfer(_amount);
+        emit ProposalExecuted(beneficiaryAddress, _amount, _reason);
     }
 
     /// @notice Mints fresh tokens and credit the member's account 
@@ -131,12 +129,12 @@ contract Concord is ERC20, Ownable {
 
     /// @notice Transfers tokens from contract to user and debit user account
     /// @dev This function can only be triggered by the Discord bot
-    /// @param _id Account ID
+    /// @param _id Discord ID
     /// @param _amount Amount to debit
     function withdraw(uint256 _id, uint256 _amount) public payable onlyOwner {
         require(users[_id].bal > _amount, "Not enough tokens");
         users[_id].bal -= _amount;
-        _transfer(address(this),users[_id].addr,_amount);
+        _transfer(address(this), users[_id].addr, _amount);
     }
 
     /// @notice Transfers ETH from contract to caller

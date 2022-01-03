@@ -89,9 +89,8 @@ exports.run = async (client, interaction) => {
       // Update ephemeral reply to user with conclusion of vote
       if (decision == 'pass') {
         await interaction.editReply(`Congrats! Your proposal has passed!`);
-        const address = registeredUsers.get(interaction.user.id);
         console.log("address: ", address);
-        const txHash = await concordClaim(address, amount, proposal_text);
+        const txHash = await concordClaim(interaction.user.id, amount, proposal_text);
         await interaction.editReply(`${interaction.user.username} has received ${amount} CC: https://rinkeby.etherscan.io/tx/${txHash}`);
       } else if (decision == 'fail') {
         await interaction.editReply(`Sorry, looks like the community doesn't agree with your claim.`)

@@ -131,7 +131,7 @@ async function getAccountBalance(userAddress) {
   const concord = await loadContract();
   userAddress = ethers.utils.getAddress(userAddress);
 
-  let balance = await concord.getInContractBalance(userAddress);
+  let balance = await concord.getAccountBalance(userAddress);
   accountBalance = ethers.utils.formatEther(balance);
   console.log("bal: ", balance.toString());
 
@@ -196,12 +196,6 @@ async function isMember(address) {
   }
 }
 
-async function isRegisteredUser(userId) {
-  
-  // returns true if user ID is not 0
-  
-}
-
 async function getContractBalance() {
   
   try {
@@ -214,10 +208,10 @@ async function getContractBalance() {
     const addressRaw = fs.readFileSync('modules/concordAddress.json');
     const addr = JSON.parse(addressRaw);
 
-    const constractBalanceRaw = await provider.getBalance(addr.concord);
-    const constractBalance = constractBalanceRaw.toString();
-    console.log("constractBalance: ", constractBalance);
-    return constractBalance;
+    const contractBalanceRaw = await provider.getBalance(addr.concord);
+    const contractBalance = contractBalanceRaw.toString();
+    console.log("contractBalance: ", contractBalance);
+    return contractBalance;
 
   } catch (err) {
     console.error(err);
@@ -225,17 +219,14 @@ async function getContractBalance() {
 }
 
 // triggers claim() 
-async function concordClaim(address, amount, proposal) {
+async function concordClaim(id, amount, proposal) {
   try {
     const concord = await loadContract();
 
     amount = ethers.utils.parseEther(amount);
 
-    console.log("address: ", address);
     console.log("amount: ", amount.toString());
     console.log("proposal: ", proposal);
-
-    const id = await concord.getUserId(address);
 
     const call = await concord.claimTask(id, amount, proposal);    
 
@@ -250,12 +241,12 @@ async function concordClaim(address, amount, proposal) {
 };
 
 // triggers executeProposal() 
-async function concordPropose(address, amount, proposal) {
+async function concordPropose(id, amount, proposal) {
   try {
     const concord = await loadContract();
 
     amount = ethers.utils.parseEther(amount);
-    const call = await concord.executeProposal(address, amount, proposal);    
+    const call = await concord.executeProposal(id, amount, proposal);    
 
     // do we want to wait until the transaction is mined?
     txHash = call.hash;
@@ -274,14 +265,11 @@ async function concordTip(from, to, amount) {
 
     amount = ethers.utils.parseEther(amount);
 
-    const senderId = await concord.getUserId(from);
-    const recipientId = await concord.getUserId(to);
-
-    console.log("from: ", senderId);
+    console.log("from: ", from);
     console.log("to: ", to);
     console.log("amount: ", amount.toString());
     
-    const call = await concord.tip(senderId, recipientId, amount);    
+    const call = await concord.tip(from, to, amount);    
 
     // do we want to wait until the transaction is mined?
     txHash = call.hash;
@@ -299,12 +287,11 @@ async function concordWithdraw(to, amount) {
     const concord = await loadContract();
 
     amount = ethers.utils.parseEther(amount);
-    const recipientId = await concord.getUserId(to);
 
     console.log("to: ", to);
     console.log("amount: ", amount.toString());
     
-    const call = await concord.withdraw(recipientId, amount);    
+    const call = await concord.withdraw(to, amount);    
 
     // do we want to wait until the transaction is mined?
     txHash = call.hash;
@@ -339,12 +326,12 @@ async function concordTopup(to, amount) {
   }
 };
 
-async function concordRegisterMember(address) {
+async function concordRegisterMember(id, address) {
   try {
 
     const concord = await loadContract();
 
-    const call = await concord.registerMember(address);    
+    const call = await concord.registerMember(id, address);    
 
     // do we want to wait until the transaction is mined?
     txHash = call.hash;

@@ -11,7 +11,7 @@ exports.run = async (client, interaction) => { // eslint-disable-line no-unused-
   if (ethers.utils.isAddress(address)) {
     registeredUsers.set(userId, address);
 
-    const txHash = await concordRegisterMember(address);
+    const txHash = await concordRegisterMember(userId, address);
     interaction.editReply(`Congrats ${interaction.user.username}! As a new member, you just received 20 CC: https://rinkeby.etherscan.io/tx/${txHash} \n \n Welcome to Concord!`)
     // interaction.editReply({content: `Thanks!`, ephemeral: true})
       .then(() => console.log('Replied successfully.'))
