@@ -181,18 +181,14 @@ function submitProposal(proposalId, outcome) {
     return false;
 }
 
-async function isMember(address) {
+async function isMember(id) {
   const concord = await loadContract();
-  if (address != 'unregistered' & ethers.utils.isAddress(address)) {
-    const call = await concord.getUserId(address);
+  const call = await concord.getAddressFromId(id);
 
-    if (call == 0) {
-      return false;
-    } else {
-      return true;
-    }
+  if (call == 0) {
+    return false;
   } else {
-    return false
+    return true;
   }
 }
 
@@ -281,17 +277,15 @@ async function concordTip(from, to, amount) {
   }
 };
 
-async function concordWithdraw(to, amount) {
+async function concordWithdraw(id, amount) {
   try {
 
     const concord = await loadContract();
 
     amount = ethers.utils.parseEther(amount);
-
-    console.log("to: ", to);
     console.log("amount: ", amount.toString());
     
-    const call = await concord.withdraw(to, amount);    
+    const call = await concord.withdraw(id, amount);    
 
     // do we want to wait until the transaction is mined?
     txHash = call.hash;
@@ -343,6 +337,33 @@ async function concordRegisterMember(id, address) {
   }
 };
 
+// Return the contract's welcome amount
+async function concordWelcomeAmount() {
+  try {
+
+    const concord = await loadContract();
+
+    const welcomeAmount = await concord.welcome();
+
+    return ethers.utils.parseEther(welcomeAmount);
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+async function concordGetAddressFromId(id) {
+  try {
+    
+    const concord = await loadContract();
+
+    const address = await concord.getAddressFromId(id);
+
+    return address
+  } catch (err) {
+    console.error(err);
+  }
+}
+
 // These 2 process methods will catch exceptions and give *more details* about the error and stack trace.
 process.on("uncaughtException", (err) => {
   const errorMsg = err.stack.replace(new RegExp(`${__dirname}/`, "g"), "./");
@@ -378,5 +399,7 @@ module.exports = {
     concordTopup, 
     concordRegisterMember,
     getContractBalance,
-    isMember
+    isMember,
+    concordWelcomeAmount,
+    concordGetAddressFromId
 };

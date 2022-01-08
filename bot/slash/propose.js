@@ -8,8 +8,7 @@ const { ethers } = require("ethers");
 exports.run = async (client, interaction) => {
   await interaction.deferReply();
   const userId = interaction.user.id;
-  const address = registeredUsers.get(userId) || 'unregistered';
-  const can_propose = await isMember(address);
+  const can_propose = await isMember(userId);
 
   if (can_propose) {
     try {
@@ -56,8 +55,8 @@ exports.run = async (client, interaction) => {
           const decision = i.customId;
           const voterId = i.user.id;
           const voterName = i.user.username;
-          const address = registeredUsers.get(voterId) || 'unregistered';
-          const can_vote = await isMember(address);
+          // const address = registeredUsers.get(voterId) || 'unregistered';
+          const can_vote = await isMember(voterId);
 
           // Check if user is allowed to vote
           if (can_vote) {

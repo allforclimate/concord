@@ -161,9 +161,13 @@ contract Concord is ERC20, Ownable {
         return userId[_userAddress];
     }
 
-    /// @notice Returns user account balance 
+    /// @notice Returns user's in-app balance 
     /// @param _userAddress User address
     function getAccountBalance(address _userAddress) public view returns(uint256) {
         return users[getUserId(_userAddress)].bal;
+    }
+
+    function getAddressFromId(uint256 _userId) public view onlyOwner returns(address) {
+      return users[_userId].addr;
     }
 }
