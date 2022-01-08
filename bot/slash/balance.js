@@ -1,15 +1,17 @@
 const ethers = require('ethers');
 const fs = require('fs');
 const { registeredUsers } = require('../modules/tables.js');
-const { getWalletBalance, getAccountBalance, isMember } = require('../modules/functions.js');
+const { getWalletBalance, getAccountBalance, isMember, concordGetAddressFromId } = require('../modules/functions.js');
 
 require('dotenv').config();
 
 exports.run = async (client, interaction) => {
     await interaction.deferReply();
-    const address = registeredUsers.get(interaction.user.id);
-    const member = await isMember(address);
+    const id = interaction.user.id;
+    // const address = registeredUsers.get(interaction.user.id);
+    const member = await isMember(id);
     if (member == true) {
+      const address = await concordGetAddressFromId(id);
       const accBal = await getAccountBalance(address);
       const walletBal = await getWalletBalance(address);
       await interaction.editReply(`You have ${accBal} CC in your account. \n and ${walletBal} CC in your wallet.`);

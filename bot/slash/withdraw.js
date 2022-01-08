@@ -6,11 +6,9 @@ exports.run = async (client, interaction) => { // eslint-disable-line no-unused-
 
   const amountRaw = interaction.options.getInteger('amount');
   const amount = amountRaw.toString();
-  const author = interaction.user;
-  const from = author.id;
-  const userId = registeredUsers.get(from);
+  const authorId = interaction.user.id;
 
-  await concordWithdraw(userId,amount);
+  await concordWithdraw(authorId,amount);
   await interaction.editReply(`Hey! You just received ${amount} CC on your wallet: https://rinkeby.etherscan.io/tx/${txHash}`);
 
 };

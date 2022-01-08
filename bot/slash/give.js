@@ -16,10 +16,7 @@ exports.run = async (client, interaction) => { // eslint-disable-line no-unused-
   const from = author.id;
   const authorName = author.username;
 
-  const recipientAddress = registeredUsers.get(to);
-  const senderAddress = registeredUsers.get(from);
-
-  await concordTip(senderAddress,recipientAddress,amount);
+  await concordTip(from, to, amount);
   await interaction.editReply(`${authorName} just sent ${amount} CC to ${recipientName}: https://rinkeby.etherscan.io/tx/${txHash}`);
 
 };

@@ -8,8 +8,7 @@ const { ethers } = require("ethers");
 exports.run = async (client, interaction) => {
   await interaction.deferReply();
   const userId = interaction.user.id;
-  const address = registeredUsers.get(userId) || 'unregistered';
-  const can_propose = await isMember(address);
+  const can_propose = await isMember(userId);
 
   if (can_propose) {
     try {
@@ -42,7 +41,7 @@ exports.run = async (client, interaction) => {
           components: [buttons]
         });
 
-        const collector = proposalMessage.createMessageComponentCollector({ time: 1*1000*30 });
+        const collector = proposalMessage.createMessageComponentCollector({ time: 1000*30 });
 
         // only register votes if isMember is true
         // isMember()
@@ -56,8 +55,8 @@ exports.run = async (client, interaction) => {
           const decision = i.customId;
           const voterId = i.user.id;
           const voterName = i.user.username;
-          const address = registeredUsers.get(voterId) || 'unregistered';
-          const can_vote = await isMember(address);
+          // const address = registeredUsers.get(voterId) || 'unregistered';
+          const can_vote = await isMember(voterId);
 
           // Check if user is allowed to vote
           if (can_vote) {
@@ -108,8 +107,7 @@ exports.run = async (client, interaction) => {
           // Update ephemeral reply to user with conclusion of vote
           if (decision == 'pass') {
             await interaction.editReply(`Congrats! Your proposal has passed!`);
-            const address = registeredUsers.get(interaction.user.id);
-            const txHash = await concordPropose(address, amount, proposal_text);
+            const txHash = await concordPropose(interaction.user.id, amount, proposal_text);
             await interaction.editReply(`${interaction.user.username} has received ${amount} ETH from the treasury: https://rinkeby.etherscan.io/tx/${txHash}`);
           } else if (decision == 'fail') {
             await interaction.editReply(`Sorry, looks like the community doesn't agree with your proposal.`)
