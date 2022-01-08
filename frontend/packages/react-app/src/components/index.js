@@ -43,7 +43,8 @@ export const Button = styled.button`
   font-size: 16px;
   text-align: center;
   text-decoration: none;
-  margin: 0px 20px;
+  margin: 0px 0px;
+  margin: 24px;
   padding: 12px 24px;
 
   ${props => props.hidden && "hidden"} :focus {
@@ -55,13 +56,13 @@ export const Button = styled.button`
 export const SuperButton = styled.button`
   background-color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: 6px;
   color: #282c34;
   cursor: pointer;
   font-size: 16px;
   text-align: center;
   text-decoration: none;
-  padding: 12px 24px;
+  padding: 8px 24px;
   margin-right: 10px;
 
   ${props => props.hidden && "hidden"} :focus {
@@ -70,3 +71,20 @@ export const SuperButton = styled.button`
   }
 `;
 
+export const TopupButton = styled.button`
+  background-color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  text-align: center;
+  text-decoration: none;
+  padding: 5px 24px;
+  margin-left: 10px;
+
+  ${props => props.hidden && "hidden"} :focus {
+    border: none;
+    outline: none;
+  }
+  
+`;

@@ -64,7 +64,7 @@ describe("Interactions", function () {
   it("Francis sends 100 MATIC to the contract and topups his account", async function () {
     await concord.connect(francis).give({value: ethers.utils.parseEther("100")});
     await concord.connect(discordBot).registerUser(francis.address);
-    await concord.connect(discordBot).topup(3, francis.address, ethers.utils.parseEther("1"));
+    await concord.connect(francis).topup(ethers.utils.parseEther("1"));
     const francisBal = await concord.users(3);
     const francisBalFormatted = francisBal.bal.toString();
     expect(francisBalFormatted).to.equal(ethers.utils.parseEther("1"));
